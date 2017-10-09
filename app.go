@@ -8,8 +8,8 @@ type App struct {
 	ambiente Ambiente
 }
 
-func (a *App) Run(w http.ResponseWriter, nDiamantes, nPedras, nAgentes int) {
+func (a *App) Run(w http.ResponseWriter, nPresas, nPredadores int) {
 	a.ambiente = Ambiente{}
-	a.ambiente.Init(w, nDiamantes, nPedras, nAgentes)
+	a.ambiente.Init(w, nPresas, nPredadores)
 	a.ambiente.Run()
 }

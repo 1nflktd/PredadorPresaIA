@@ -25,13 +25,12 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	nDiamantes := flag.Int("diamantes", 5, "Numero de diamantes")
-	nPedras := flag.Int("pedras", 5, "Numero de pedras")
-	nAgentes := flag.Int("agentes", 5, "Numero de agentes")
+	nPredadores := flag.Int("predadores", 10, "Numero de predadores")
+	nPresas := flag.Int("presas", 10, "Numero de presas")
 	flag.Parse()
 
 	app := &App{}
-	app.Run(w, *nDiamantes, *nPedras, *nAgentes)
+	app.Run(w, *nPresas, *nPredadores)
 }
 
 func main() {

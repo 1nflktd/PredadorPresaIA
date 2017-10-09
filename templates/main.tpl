@@ -5,11 +5,23 @@
 	<script type="text/javascript">
 		function setMapa(mapa) {
 			var table = "<table style=\"border: solid\">";
-			for (i = 0; i < 15; i++) {
+			for (i = 0; i < 30; i++) {
 				table += "<tr>";
-				for (j = 0; j < 15; j++) {
-					var img = mapa[i][j] == 'a' ? "<img src=\"../images/predator.jpg\">" : mapa[i][j];
-					//var img = mapa[i][j] % 2 == 0 ? "X" : " ";
+				for (j = 0; j < 30; j++) {
+					var imgName = "";
+					switch(mapa[i][j]) {
+						case 1:
+							imgName = "predator.jpg";
+							break;
+						case 2:
+							imgName = "homer.jpg";
+							break;
+						case 3:
+							imgName = "fundo.jpg";
+							break;
+					}
+
+					var img =  "<img src=\"../images/" + imgName + "\">";
 					table += "<td style=\"border: solid\">" + img + "</td>";
 				}
 				table += "</tr>";
