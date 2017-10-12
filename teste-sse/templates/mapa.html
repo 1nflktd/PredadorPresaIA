@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>HTML5 Server Side Event Example in Go</title>
+	<script type="text/javascript">
+	    var tamanhoMapa = 5;
+		function setMapa(mapa) {
+			var mapa = JSON.parse(mapa);
+			var table = "<table style=\"border: 1px solid black\">";
+			for (i = 0; i < tamanhoMapa; i++) {
+				table += "<tr>";
+				for (j = 0; j < tamanhoMapa; j++) {
+					table += "<td style=\"border: 1px solid black\">" + mapa[i][j] + "</td>";
+				}
+				table += "</tr>";
+			}
+
+			document.getElementById("mapa").innerHTML = table;
+		}
+
+		// Create a new HTML5 EventSource
+	    var source = new EventSource('/events/');
+
+	    // Create a callback for when a new message is received.
+	    source.onmessage = function(e) {
+	    	setMapa(e.data);
+	    };
+
+		source.onerror = function(e){
+			document.getElementById("mapa").innerHTML = "<p>Servidor morreu!</p>";
+		};
+	</script>
+</head>
+<body>
+	Olá {{.}}<br>
+
+	<div id="mapa"></div>
+</body>
+</html>
