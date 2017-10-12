@@ -2,6 +2,13 @@
 <html>
 <head>
 	<title>Inteligência artificial - Predador/Presa</title>
+	<style type="text/css">
+		table td {
+			border: 1px solid black;
+			width: 16px;
+			height: 16px;
+		}
+	</style>
 	<script type="text/javascript">
 		function setMapa(ambiente) {
 			var ambiente = JSON.parse(ambiente);
@@ -12,7 +19,7 @@
 
 			var mapa = ambiente.Mapa;
 		    var tamanhoMapa = ambiente.TamanhoMapa;
-			var table = "<table style=\"border: 1px solid black\">";
+			var table = "<table>";
 			for (i = 0; i < tamanhoMapa; i++) {
 				table += "<tr>";
 				for (j = 0; j < tamanhoMapa; j++) {
@@ -24,13 +31,10 @@
 						case 2:
 							imgName = "homer.jpg";
 							break;
-						case 3:
-							imgName = "fundo.jpg";
-							break;
 					}
 
-					var img =  "<img src=\"../images/" + imgName + "\">";
-					table += "<td style=\"border: 1px solid black\">" + img + "</td>";
+					var img = imgName != "" ? "<img src=\"../images/" + imgName + "\">" : "";
+					table += "<td>" + img + "</td>";
 				}
 				table += "</tr>";
 			}
