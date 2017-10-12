@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Inteligência artificial - Predador/Presa</title>
+	<script type="text/javascript">
+	    var tamanhoMapa = 30;
+		function setMapa(mapa) {
+			var mapa = JSON.parse(mapa);
+			var table = "<table style=\"border: 1px solid black\">";
+			for (i = 0; i < tamanhoMapa; i++) {
+				table += "<tr>";
+				for (j = 0; j < tamanhoMapa; j++) {
+					var imgName = "";
+					switch(mapa[i][j]) {
+						case 1:
+							imgName = "predator.jpg";
+							break;
+						case 2:
+							imgName = "homer.jpg";
+							break;
+						case 3:
+							imgName = "fundo.jpg";
+							break;
+					}
+
+					var img =  "<img src=\"../images/" + imgName + "\">";
+					table += "<td style=\"border: 1px solid black\">" + img + "</td>";
+				}
+				table += "</tr>";
+			}
+
+			document.getElementById("mapa").innerHTML = table;
+		}
+
+	    var source = new EventSource('/events/');
+
+	    source.onmessage = function(e) {
+	    	setMapa(e.data);
+	    };
+
+		source.onerror = function(e){
+			document.getElementById("mapa").innerHTML = "<p>Servidor morreu!</p>";
+		};
+	</script>
+</head>
+<body>
+	Olá {{.}}<br>
+
+	<div id="mapa"></div>
+</body>
+</html>

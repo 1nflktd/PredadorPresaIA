@@ -1,11 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"time"
 	"math/rand"
 	"sync"
-	"net/http"
 )
 
 const TamanhoMapa = 30
@@ -24,12 +22,9 @@ type AmbienteTela struct {
 type Ambiente struct {
 	mapa [TamanhoMapa][TamanhoMapa]CAgente
 	agentes []Agente
-	w http.ResponseWriter
 }
 
-func (a *Ambiente) Init(w http.ResponseWriter, nPresas, nPredadores int) {
-	a.w = w
-
+func (a *Ambiente) Init(nPresas, nPredadores int) {
 	// inicia todos em branco
 	for i := 0; i < TamanhoMapa; i++ {
 		for w := 0; w < TamanhoMapa; w++ {
@@ -64,17 +59,15 @@ func (a *Ambiente) Init(w http.ResponseWriter, nPresas, nPredadores int) {
 	}
 }
 
-func (a *Ambiente) PrintMapa() {
-	executeTemplate(a.w, AmbienteTela{Mapa: a.mapa})
+func (a *Ambiente) getMapa() [TamanhoMapa][TamanhoMapa]CAgente {
+	return a.mapa
 }
 
 func (a *Ambiente) Run() {
 	for i := 0; i < 5000; i++ {
-		a.PrintMapa()
 		a.moveAgentes()
-		time.Sleep(1000 * time.Millisecond)
+		time.Sleep(500 * time.Millisecond)
 	}
-	fmt.Printf("Todas presas capturadas ou limite de iterações\n")
 }
 
 func (a *Ambiente) moveAgentes() {
