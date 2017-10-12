@@ -3,9 +3,15 @@
 <head>
 	<title>Inteligência artificial - Predador/Presa</title>
 	<script type="text/javascript">
-	    var tamanhoMapa = 30;
-		function setMapa(mapa) {
-			var mapa = JSON.parse(mapa);
+		function setMapa(ambiente) {
+			var ambiente = JSON.parse(ambiente);
+
+			if (ambiente.Terminou) {
+				document.getElementById("mapa").innerHTML += "<p>Limite de 5000 iterações atingido.</p>";
+			}
+
+			var mapa = ambiente.Mapa;
+		    var tamanhoMapa = ambiente.TamanhoMapa;
 			var table = "<table style=\"border: 1px solid black\">";
 			for (i = 0; i < tamanhoMapa; i++) {
 				table += "<tr>";
@@ -44,8 +50,6 @@
 	</script>
 </head>
 <body>
-	Olá {{.}}<br>
-
 	<div id="mapa"></div>
 </body>
 </html>

@@ -9,10 +9,10 @@ import (
 
 func MainHandler(w http.ResponseWriter, r *http.Request) {
 	if tmpl, err := template.New("index.html").ParseFiles("templates/index.html"); err != nil {
-		log.Println("unable to parse main template.", err)
+		log.Fatal("Erro ao parsear template.", err)
 	} else {
 		if err = tmpl.Execute(w, nil); err != nil {
-			log.Println("unable to execute template.", err)
+			log.Fatal("Nao foi possivel executar template.", err)
 		}
 	}
 }

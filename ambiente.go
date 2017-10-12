@@ -17,11 +17,14 @@ const (
 
 type AmbienteTela struct {
 	Mapa [TamanhoMapa][TamanhoMapa]CAgente
+	Terminou bool
+	TamanhoMapa int
 }
 
 type Ambiente struct {
 	mapa [TamanhoMapa][TamanhoMapa]CAgente
 	agentes []Agente
+	terminou bool
 }
 
 func (a *Ambiente) Init(nPresas, nPredadores int) {
@@ -59,15 +62,16 @@ func (a *Ambiente) Init(nPresas, nPredadores int) {
 	}
 }
 
-func (a *Ambiente) getMapa() [TamanhoMapa][TamanhoMapa]CAgente {
-	return a.mapa
+func (a *Ambiente) getAmbienteTela() AmbienteTela {
+	return AmbienteTela{Mapa: a.mapa, Terminou: a.terminou, TamanhoMapa: TamanhoMapa}
 }
 
 func (a *Ambiente) Run() {
-	for i := 0; i < 5000; i++ {
+	for i := 0; i < 50; i++ {
 		a.moveAgentes()
 		time.Sleep(500 * time.Millisecond)
 	}
+	a.terminou = true
 }
 
 func (a *Ambiente) moveAgentes() {

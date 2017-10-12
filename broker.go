@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"errors"
 
 	"time"
 	"encoding/json"
@@ -21,24 +22,23 @@ type Broker struct {
 func (b *Broker) Start() {
 	go func() {
 		for {
-
 			select {
 
 			case s := <-b.newClients:
 				b.clients[s] = true
-				log.Println("Added new client")
+				log.Println("Adicionou um client")
 
 			case s := <-b.defunctClients:
 				delete(b.clients, s)
 				close(s)
 
-				log.Println("Removed client")
+				log.Println("Removeu um client")
 
 			case msg := <-b.messages:
 				for s, _ := range b.clients {
 					s <- msg
 				}
-				log.Printf("Broadcast message to %d clients", len(b.clients))
+				log.Printf("Mandando msg para %d clients", len(b.clients))
 			}
 		}
 	}()
@@ -47,7 +47,7 @@ func (b *Broker) Start() {
 func (b *Broker) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	f, ok := w.(http.Flusher)
 	if !ok {
-		http.Error(w, "Streaming unsupported!", http.StatusInternalServerError)
+		http.Error(w, "Streaming nao suportado!", http.StatusInternalServerError)
 		return
 	}
 
@@ -61,7 +61,7 @@ func (b *Broker) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		<-notify
 
 		b.defunctClients <- messageChan
-		log.Println("HTTP connection just closed.")
+		log.Println("HTTP conexao fechada.")
 	}()
 
 	w.Header().Set("Content-Type", "text/event-stream")
@@ -80,41 +80,47 @@ func (b *Broker) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		f.Flush()
 	}
 
-	log.Println("Finished HTTP request at ", r.URL.Path)
+	log.Println("Terminou HTTP request em ", r.URL.Path)
 }
 
-func (b *Broker) MapaHandler(w http.ResponseWriter, r *http.Request) {
+func obterValoresFormulario(r *http.Request) (error, int, int) {
 	if err := r.ParseForm(); err != nil {
 		log.Println("Erro ao obter valores do formulario")
-		http.Redirect(w, r, "/", 200)
-		return
+		return err, 0, 0
 	}
 
 	if r.PostForm["nPredadores"] == nil || r.PostForm["nPresas"] == nil {
 		log.Println("Formulario vazio")
-		http.Redirect(w, r, "/", 200)
-		return
+		return errors.New("Formulario vazio"), 0, 0
 	}
 
 	nPresas, errPresas := strconv.ParseInt(r.PostForm["nPresas"][0], 10, 32)
 	if errPresas != nil {
 		log.Println("Erro ao converter valores do formulario.")
-		http.Redirect(w, r, "/", 200)
-		return
+		return errPresas, 0, 0
 	}
 
 	nPredadores, errPredadores := strconv.ParseInt(r.PostForm["nPredadores"][0], 10, 32)
 	if errPredadores != nil {
 		log.Println("Erro ao converter valores do formulario.")
+		return errPredadores, 0, 0
+	}
+
+	return nil, int(nPresas), int(nPredadores)
+}
+
+func (b *Broker) MapaHandler(w http.ResponseWriter, r *http.Request) {
+	errForm, nPresas, nPredadores := obterValoresFormulario(r)
+	if errForm != nil {
 		http.Redirect(w, r, "/", 200)
 		return
 	}
 
 	if tmpl, err := template.New("mapa.html").ParseFiles("templates/mapa.html"); err != nil {
-		log.Fatal("Error parsing your template.", err)
+		log.Fatal("Erro ao parsear template.", err)
 	} else {
-		if err = tmpl.Execute(w, "hnrq"); err != nil {
-			log.Fatal("unable to execute template.", err)
+		if err = tmpl.Execute(w, nil); err != nil {
+			log.Fatal("Nao foi possivel executar template.", err)
 		}
 	}
 
@@ -125,17 +131,18 @@ func (b *Broker) MapaHandler(w http.ResponseWriter, r *http.Request) {
 	app := &App{}
 
 	go func() {
-		app.Run(int(nPresas), int(nPredadores))
+		app.Run(nPresas, nPredadores)
 	}()
 
 	go func() {
 		for {
-			jsonAmbiente, err := json.Marshal(app.ambiente.getMapa())
+			ambienteTela := app.ambiente.getAmbienteTela()
+			jsonAmbiente, err := json.Marshal(ambienteTela)
 			if err == nil {
 				b.messages <- jsonAmbiente
 			}
 
-			if len(b.clients) == 0 {
+			if len(b.clients) == 0 || ambienteTela.Terminou == true {
 				ch <- true
 			}
 
@@ -145,5 +152,5 @@ func (b *Broker) MapaHandler(w http.ResponseWriter, r *http.Request) {
 
 	<-ch
 
-	log.Println("Finished HTTP request at ", r.URL.Path)
+	log.Println("Terminou HTTP request em ", r.URL.Path)
 }
