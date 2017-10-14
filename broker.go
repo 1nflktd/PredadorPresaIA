@@ -136,7 +136,7 @@ func (b *Broker) MapaHandler(w http.ResponseWriter, r *http.Request) {
 
 	go func() {
 		for {
-			ambienteTela := app.ambiente.getAmbienteTela()
+			ambienteTela := app.ambiente.GetAmbienteTela()
 			jsonAmbiente, err := json.Marshal(ambienteTela)
 			if err == nil {
 				b.messages <- jsonAmbiente

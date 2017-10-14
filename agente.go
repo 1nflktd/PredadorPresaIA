@@ -37,20 +37,29 @@ func (a *AgenteImpl) movePosAleatorio() Posicao {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	pos := a.posicao
 
-	if pos.X >= (TamanhoMapa - 1) {
-		pos.X--
-	} else if pos.X == 0 {
-		pos.X++
-	} else {
-		pos.X += (r.Intn(3) - 1) // random de 0 a 2, se 0 volta uma (-1), 1 fica parado, 2 avanca
-	}
+	// verifica se move x ou y
+	x_y := r.Intn(2)
 
-	if pos.Y >= (TamanhoMapa - 1) {
-		pos.Y--
-	} else if pos.Y == 0 {
-		pos.Y++
-	} else {
-		pos.Y += (r.Intn(3) - 1) // random de 0 a 2, se 0 volta uma (-1), 1 fica parado, 2 avanca
+	// verifica se positivo ou negativo
+	pos_neg_para := r.Intn(3) - 1
+
+	if x_y == 0 { // move x
+		pos.X += pos_neg_para
+
+		if pos.X >= TamanhoMapa {
+			pos.X = 0
+		} else if pos.X < 0 {
+			pos.X = TamanhoMapa - 1
+		}
+
+	} else { // move y
+		pos.Y += pos_neg_para
+
+		if pos.Y >= TamanhoMapa {
+			pos.Y = 0
+		} else if pos.Y < 0 {
+			pos.Y = TamanhoMapa - 1
+		}
 	}
 
 	return pos

@@ -21,7 +21,6 @@ func main() {
 	var porta = flag.String("Porta", "8000", "Digite a porta do servidor")
 	flag.Parse()
 
-	// Make a new Broker instance
 	b := &Broker{
 		make(map[chan []byte]bool),
 		make(chan (chan []byte)),

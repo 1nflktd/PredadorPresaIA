@@ -62,12 +62,12 @@ func (a *Ambiente) Init(nPresas, nPredadores int) {
 	}
 }
 
-func (a *Ambiente) getAmbienteTela() AmbienteTela {
+func (a *Ambiente) GetAmbienteTela() AmbienteTela {
 	return AmbienteTela{Mapa: a.mapa, Terminou: a.terminou, TamanhoMapa: TamanhoMapa}
 }
 
 func (a *Ambiente) Run() {
-	for i := 0; i < 50; i++ {
+	for i := 0; i < 5000; i++ {
 		a.moveAgentes()
 		time.Sleep(500 * time.Millisecond)
 	}
