@@ -1,15 +1,28 @@
 <!DOCTYPE html>
-<html lang="en"><head></head>
+<html lang="en">
+<head>
+	<link rel="stylesheet" href="../css/bootstrap.min.css">
+	<script src="../js/bootstrap.min.js"></script>
+</head>
 <body>
-	<form action="/mapa/" method="post">
-		<label>Numero predadores</label>
-		<input type="text" name="nPredadores" id="nPredadores" value="5"><br/><br/>
+	<div class="container">
+		<form action="/mapa/" method="post">
+			<div class="form-group row">
+				<label for="nPredadores" class="col-sm-2 col-form-label">Numero predadores</label>
+				<div class="col-sm-10">
+					<input type="text" name="nPredadores" id="nPredadores" value="5" class="form-control">
+				</div>
+			</div>
 
-		<label>Numero presas</label>
-		<input type="text" name="nPresas" id="nPresas" value="5"><br/><br/>
+			<div class="form-group row">
+				<label for="nPresas" class="col-sm-2 col-form-label">Numero presas</label>
+				<div class="col-sm-10">
+					<input type="text" name="nPresas" id="nPresas" value="5" class="form-control">
+				</div>
+			</div>
 
-		<br/>
-		<input type="submit" value="Enviar">
-	</form>
+			<button class="btn btn-primary" type="submit">Enviar</button>
+		</form>
+	</div>
 </body>
 </html>
