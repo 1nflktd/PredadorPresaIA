@@ -142,7 +142,7 @@ func (b *Broker) MapaHandler(w http.ResponseWriter, r *http.Request) {
 				b.messages <- jsonAmbiente
 			}
 
-			if len(b.clients) == 0 || ambienteTela.Terminou == true {
+			if len(b.clients) == 0 || ambienteTela.LimiteIteracoes == true || ambienteTela.PresasCapturadas == true  {
 				ch <- true
 			}
 
