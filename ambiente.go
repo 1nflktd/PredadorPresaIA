@@ -15,15 +15,16 @@ const (
 	C_Vazio CAgente = 3
 )
 
+type Mapa [TamanhoMapa][TamanhoMapa]CAgente
 type AmbienteTela struct {
-	Mapa [TamanhoMapa][TamanhoMapa]CAgente
+	Mapa Mapa
 	LimiteIteracoes bool
 	TamanhoMapa int
 	PresasCapturadas bool
 }
 
 type Ambiente struct {
-	mapa [TamanhoMapa][TamanhoMapa]CAgente
+	mapa Mapa
 	agentes []Agente
 	limiteIteracoes bool
 	presasCapturadas bool
@@ -88,8 +89,8 @@ func (a *Ambiente) moveAgentes() {
 	for _, ag := range a.agentes {
 		go func(agente Agente) {
 			posAtual := agente.getPosicao()
-			var p_ag Posicao
-			p_ag = agente.movePosAleatorio()
+			campoVisao := ObterCampoVisao(a.mapa, posAtual)
+			p_ag := agente.move(campoVisao)
 
 			mutexMapa.Lock()
 			ok, _ := a.verificaColisao(p_ag)
