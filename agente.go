@@ -94,20 +94,10 @@ func (a *AgenteImpl) moveAgente(direcao Direcao, velocidade int) Posicao {
 	if x_y == 0 { // move x
 		pos.X += pos_neg_para
 
-		if pos.X >= TamanhoMapa {
-			pos.X = 0
-		} else if pos.X < 0 {
-			pos.X = TamanhoMapa - 1
-		}
-
+		pos.X = VerificaLimites(pos.X)
 	} else { // move y
 		pos.Y += pos_neg_para
-
-		if pos.Y >= TamanhoMapa {
-			pos.Y = 0
-		} else if pos.Y < 0 {
-			pos.Y = TamanhoMapa - 1
-		}
+		pos.Y = VerificaLimites(pos.Y)
 	}
 
 	return pos

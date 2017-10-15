@@ -6,14 +6,16 @@ import (
 	"sync"
 )
 
-//const TamanhoMapa = 30
-const TamanhoMapa = 5
+const TamanhoMapa = 30
 
 type CAgente int
 const (
-	C_Predador CAgente = 1
-	C_Presa CAgente = 2
-	C_Vazio CAgente = 3
+	C_Predador CAgente = iota + 1
+	C_Presa
+	C_Vazio
+	C_Marca1
+	C_Marca2
+	C_Marca3
 )
 
 type Mapa [TamanhoMapa][TamanhoMapa]CAgente
@@ -91,7 +93,7 @@ func (a *Ambiente) moveAgentes() {
 		go func(agente Agente) {
 			posAtual := agente.getPosicao()
 			campoVisao := ObterCampoVisao(a.mapa, posAtual)
-			p_ag := agente.mover(campoVisao)
+			posNova := agente.mover(campoVisao)
 
 			morreu := false
 			if presa, ehPresa := agente.(*Presa); ehPresa {
@@ -104,14 +106,18 @@ func (a *Ambiente) moveAgentes() {
 				mutexMapa.Unlock()
 			} else {
 				mutexMapa.Lock()
-				ok, _ := a.verificaColisao(p_ag)
+				ok, _ := a.verificaColisao(posNova)
 				mutexMapa.Unlock()
 
 				if ok {
+					if predador, ehPredador := agente.(*Predador); ehPredador {
+						predador.adicionarMarcas(posAtual, posNova)
+					}
+
 					mutexMapa.Lock()
 					a.mapa[posAtual.X][posAtual.Y] = C_Vazio
-					agente.setPosicao(p_ag) // move o elemento
-					a.mapa[p_ag.X][p_ag.Y] = agente.getCAgente()
+					agente.setPosicao(posNova) // move o elemento
+					a.mapa[posNova.X][posNova.Y] = agente.getCAgente()
 					mutexMapa.Unlock()
 				}
 			}
@@ -132,4 +138,13 @@ func (a *Ambiente) verificaColisao(posAgente Posicao) (bool, CAgente) {
 	} else {
 		return false, c
 	}
+}
+
+func VerificaLimites(coordenada int) int {
+	if coordenada >= TamanhoMapa {
+		coordenada = 0
+	} else if coordenada < 0 {
+		coordenada = TamanhoMapa - 1
+	}
+	return coordenada
 }
