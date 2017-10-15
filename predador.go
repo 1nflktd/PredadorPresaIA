@@ -12,7 +12,7 @@ func (p *Predador) getCAgente() CAgente {
 	return C_Predador
 }
 
-func (p *Predador) move(campoVisao CampoVisao) Posicao {
+func (p *Predador) mover(campoVisao CampoVisao) Posicao {
 	// verifica se tem presa no campo de visao
 	// se tem comeca a caca
 	p.cacando = false
@@ -23,9 +23,6 @@ func (p *Predador) move(campoVisao CampoVisao) Posicao {
 
 			if p.iteracaoCacando == 4 {
 				p.iteracaoCacando = 0 // ultima iteracao velocidade maxima
-			} else if p.iteracaoCacando == 0 {
-				// detectou presa
-				p.iteracaoCacando = 1
 			} else {
 				p.iteracaoCacando++
 			}

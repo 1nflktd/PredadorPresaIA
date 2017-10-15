@@ -86,3 +86,26 @@ func ObterCampoVisao(mapa Mapa, posAgente Posicao) (CampoVisao) {
 
 	return campoVisao
 }
+
+func ObterDirecaoOposta(direcao Direcao) Direcao {
+	switch (direcao) {
+		case P_Norte:
+			return P_Sul
+		case P_Noroeste:
+			return P_Sudeste
+		case P_Nordeste:
+			return P_Sudoeste
+		case P_Leste:
+			return P_Oeste
+		case P_Oeste:
+			return P_Leste
+		case P_Sudoeste:
+			return P_Nordeste
+		case P_Sudeste:
+			return P_Noroeste
+		case P_Sul:
+			return P_Norte
+	}
+
+	return direcao
+}

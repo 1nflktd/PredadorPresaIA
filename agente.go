@@ -11,7 +11,7 @@ type Agente interface {
 	getPosicao() Posicao
 	viver() Posicao
 	getCAgente() CAgente
-	move(CampoVisao) Posicao
+	mover(CampoVisao) Posicao
 	moveAgente(Direcao, int) Posicao
 }
 

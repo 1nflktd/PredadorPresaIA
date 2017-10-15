@@ -6,7 +6,8 @@ import (
 	"sync"
 )
 
-const TamanhoMapa = 30
+//const TamanhoMapa = 30
+const TamanhoMapa = 5
 
 type CAgente int
 const (
@@ -90,18 +91,29 @@ func (a *Ambiente) moveAgentes() {
 		go func(agente Agente) {
 			posAtual := agente.getPosicao()
 			campoVisao := ObterCampoVisao(a.mapa, posAtual)
-			p_ag := agente.move(campoVisao)
+			p_ag := agente.mover(campoVisao)
 
-			mutexMapa.Lock()
-			ok, _ := a.verificaColisao(p_ag)
-			mutexMapa.Unlock()
+			morreu := false
+			if presa, ehPresa := agente.(*Presa); ehPresa {
+				morreu = presa.getMorreu()
+			}
 
-			if ok {
+			if morreu {
 				mutexMapa.Lock()
 				a.mapa[posAtual.X][posAtual.Y] = C_Vazio
-				agente.setPosicao(p_ag) // move o elemento
-				a.mapa[p_ag.X][p_ag.Y] = agente.getCAgente()
 				mutexMapa.Unlock()
+			} else {
+				mutexMapa.Lock()
+				ok, _ := a.verificaColisao(p_ag)
+				mutexMapa.Unlock()
+
+				if ok {
+					mutexMapa.Lock()
+					a.mapa[posAtual.X][posAtual.Y] = C_Vazio
+					agente.setPosicao(p_ag) // move o elemento
+					a.mapa[p_ag.X][p_ag.Y] = agente.getCAgente()
+					mutexMapa.Unlock()
+				}
 			}
 
 			agentes <- true
