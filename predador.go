@@ -1,5 +1,9 @@
 package main
 
+import (
+//	"log"
+)
+
 const VelocidadeMaximaPredador = 4
 
 type Predador struct {
@@ -39,18 +43,17 @@ func (p *Predador) mover(campoVisao CampoVisao) Posicao {
 	}
 
 	// diminuir intensidade das marcas atuais
-	/*
-	marcas := []Marca{}
+	i := 0
 	for _, marca := range p.marcas {
 		marca.Intensidade--
 		if marca.Intensidade > 0 {
 			// manter
-			marcas = append(marcas, marca)
+			p.marcas[i] = marca
+			i++
 		}
 	}
 
-	p.marcas = marcas
-	*/
+	p.marcas = p.marcas[i:]
 
 	if p.cacando {
 		return p.cacar(direcao)
@@ -70,32 +73,35 @@ func (p *Predador) cacar(direcao Direcao) Posicao {
 
 func (p *Predador) adicionarMarcas(posAtual, posNova Posicao) {
 	if p.cacando {
-		/*
 		fValAltera := func(pAtual, pNovo int) int {
-			var valAltera int
+			valAltera := 1
 			if pAtual < pNovo {
 				valAltera = -1
-			} else {
-				valAltera = 1
 			}
 			return valAltera
+		}
+
+		fMaiorMenor := func(pAtual, pNovo, valAltera int) bool {
+			if valAltera < 0 {
+				return pAtual > pNovo
+			}
+			return pNovo < pAtual
 		}
 
 		if posAtual.X != posNova.X {
 			// mudou x
 			valAltera := fValAltera(posAtual.X, posNova.X)
-			for x := posAtual.X; x <= posNova.X; x += valAltera {
+			for x := posAtual.X; fMaiorMenor(VerificaLimites(x), posNova.X, valAltera); x += valAltera {
 				x = VerificaLimites(x)
 				p.marcas = append(p.marcas, Marca{Pos: Posicao{X: x, Y: posNova.Y}, Intensidade: 3})
 			}
 		} else {
 			// mudou y
 			valAltera := fValAltera(posAtual.Y, posNova.Y)
-			for y := posAtual.Y; y <= posNova.Y; y += valAltera {
+			for y := posAtual.Y; fMaiorMenor(VerificaLimites(y), posNova.Y, valAltera); y += valAltera {
 				y = VerificaLimites(y)
 				p.marcas = append(p.marcas, Marca{Pos: Posicao{X: posNova.X, Y: y}, Intensidade: 3})
 			}
 		}
-		*/
 	}
 }
