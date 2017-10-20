@@ -4,7 +4,7 @@ import (
 //	"log"
 )
 
-const VelocidadeMaximaPredador = 4
+const VelocidadeMaximaPredador = 2
 
 type Predador struct {
 	AgenteImpl
@@ -39,27 +39,33 @@ func (p *Predador) mover(campoVisao CampoVisao) Posicao {
 
 			direcao = Direcao(i)
 			break
+		} else if VerificaSeEhMarca(campo.Agente) {
+			direcao = Direcao(i)
 		}
 	}
 
 	// diminuir intensidade das marcas atuais
-	i := 0
+	marcas := []Marca{}
 	for _, marca := range p.marcas {
 		marca.Intensidade--
-		if marca.Intensidade > 0 {
-			// manter
-			p.marcas[i] = marca
-			i++
+
+		if marca.Intensidade > -1 {
+			marcas = append(marcas, marca)
 		}
 	}
-
-	p.marcas = p.marcas[i:]
+	p.marcas = marcas
 
 	if p.cacando {
 		return p.cacar(direcao)
+	} else if !p.cacando && direcao != Direcao(-1) {
+		return p.seguirMarca(direcao)
 	} else {
 		return p.viver()
 	}
+}
+
+func (p *Predador) seguirMarca(direcao Direcao) Posicao {
+	return p.moveAgente(direcao, 1)
 }
 
 func (p *Predador) cacar(direcao Direcao) Posicao {
@@ -104,4 +110,8 @@ func (p *Predador) adicionarMarcas(posAtual, posNova Posicao) {
 			}
 		}
 	}
+}
+
+func (p *Predador) getMarcas() []Marca {
+	return p.marcas
 }

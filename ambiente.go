@@ -4,6 +4,8 @@ import (
 	"time"
 	"math/rand"
 	"sync"
+
+//	"log"
 )
 
 const TamanhoMapa = 30
@@ -19,6 +21,7 @@ const (
 )
 
 type Mapa [TamanhoMapa][TamanhoMapa]CAgente
+
 type AmbienteTela struct {
 	Mapa Mapa
 	LimiteIteracoes bool
@@ -100,27 +103,24 @@ func (a *Ambiente) moveAgentes() {
 				morreu = presa.getMorreu()
 			}
 
+			mutexMapa.Lock()
 			if morreu {
-				mutexMapa.Lock()
 				a.mapa[posAtual.X][posAtual.Y] = C_Vazio
-				mutexMapa.Unlock()
 			} else {
-				mutexMapa.Lock()
 				ok, _ := a.verificaColisao(posNova)
-				mutexMapa.Unlock()
 
 				if ok {
 					if predador, ehPredador := agente.(*Predador); ehPredador {
+						a.eliminarMarcasMapa(predador.getMarcas())
 						predador.adicionarMarcas(posAtual, posNova)
+						a.adicionarMarcasMapa(predador.getMarcas())
 					}
-
-					mutexMapa.Lock()
 					a.mapa[posAtual.X][posAtual.Y] = C_Vazio
 					agente.setPosicao(posNova) // move o elemento
 					a.mapa[posNova.X][posNova.Y] = agente.getCAgente()
-					mutexMapa.Unlock()
 				}
 			}
+			mutexMapa.Unlock()
 
 			agentes <- true
 		}(ag)
@@ -133,10 +133,38 @@ func (a *Ambiente) moveAgentes() {
 
 func (a *Ambiente) verificaColisao(posAgente Posicao) (bool, CAgente) {
 	c := a.mapa[posAgente.X][posAgente.Y]
-	if c == C_Vazio {
+	if c == C_Vazio || c == C_Marca3 || c == C_Marca2 || c == C_Marca1 {
 		return true, c
 	} else {
 		return false, c
+	}
+}
+
+func (a *Ambiente) eliminarMarcasMapa(marcas []Marca) {
+	for _, marca := range marcas {
+		if ok, _ := a.verificaColisao(marca.Pos); ok {
+			a.mapa[marca.Pos.X][marca.Pos.Y] = C_Vazio
+		}
+	}
+}
+
+func (a *Ambiente) adicionarMarcasMapa(marcas []Marca) {
+	fnCAgenteMarca := func(intensidade int) CAgente {
+		switch(intensidade) {
+			case 3:
+				return C_Marca3
+			case 2:
+				return C_Marca2
+			case 1:
+				return C_Marca1
+		}
+		return C_Vazio
+	}
+
+	for _, marca := range marcas {
+		if ok, _ := a.verificaColisao(marca.Pos); ok {
+			a.mapa[marca.Pos.X][marca.Pos.Y] = fnCAgenteMarca(marca.Intensidade)
+		}
 	}
 }
 
@@ -147,4 +175,8 @@ func VerificaLimites(coordenada int) int {
 		coordenada = TamanhoMapa - 1
 	}
 	return coordenada
+}
+
+func VerificaSeEhMarca(cAgente CAgente) bool {
+	return cAgente == C_Marca1 || cAgente == C_Marca2 || cAgente == C_Marca3
 }
