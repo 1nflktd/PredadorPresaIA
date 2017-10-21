@@ -42,9 +42,11 @@ func (b *Broker) Start() {
 				log.Println("Removeu um client")
 
 			case msg := <-b.messages:
+				mutexClients.Lock()
 				for s, _ := range b.clients {
 					s <- msg
 				}
+				mutexClients.Unlock()
 
 				//log.Printf("Mandando msg para %d clients", len(b.clients))
 			}
@@ -157,7 +159,7 @@ func (b *Broker) MapaHandler(w http.ResponseWriter, r *http.Request) {
 			lenClients := len(b.clients) == 0
 			mutexClients.Unlock()
 
-			if lenClients || ambienteTela.LimiteIteracoes == true /*|| ambienteTela.PresasTotais == 0*/  {
+			if lenClients || ambienteTela.LimiteIteracoes == true || ambienteTela.PresasTotais == 0  {
 				ch <- true
 			}
 
