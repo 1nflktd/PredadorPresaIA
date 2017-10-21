@@ -146,7 +146,7 @@ func (b *Broker) MapaHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	ch := make(chan bool)
+	log.Println("Terminou HTTP request 2 em ", r.URL.Path)
 
 	app := &App{}
 	app.Init(nPresas, nPredadores)
@@ -163,19 +163,17 @@ func (b *Broker) MapaHandler(w http.ResponseWriter, r *http.Request) {
 				b.messages <- jsonAmbiente
 			}
 
+			/*
 			b.mutexClients.Lock()
-			lenClients := len(b.clients) == 0
+			lenClients := true //len(b.clients) == 0
 			b.mutexClients.Unlock()
+			*/
 
-			if lenClients || ambienteTela.LimiteIteracoes == true || ambienteTela.PresasTotais == 0  {
-				ch <- true
+			if /*lenClients || */ambienteTela.LimiteIteracoes == true || ambienteTela.PresasTotais == 0  {
+				break
 			}
 
 			time.Sleep(100 * time.Millisecond)
 		}
 	}()
-
-	<-ch
-
-	log.Println("Terminou HTTP request 2 em ", r.URL.Path)
 }
