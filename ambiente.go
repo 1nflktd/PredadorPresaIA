@@ -168,15 +168,12 @@ func (a *Ambiente) eliminarMarcasMapa(marcas []Marca) {
 
 func (a *Ambiente) adicionarMarcasMapa(marcas []Marca) {
 	fnCAgenteMarca := func(intensidade int) CAgente {
-		switch(intensidade) {
-			case 3:
-				return C_Marca3
-			case 2:
-				return C_Marca2
-			case 1:
-				return C_Marca1
+		if intensidade > (2 * IntensidadeMarcaMul) {
+			return C_Marca3
+		} else if intensidade > IntensidadeMarcaMul {
+			return C_Marca2
 		}
-		return C_Vazio
+		return C_Marca1
 	}
 
 	for _, marca := range marcas {

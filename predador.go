@@ -4,7 +4,7 @@ import (
 //	"log"
 )
 
-const VelocidadeMaximaPredador = 2
+const VelocidadeMaximaPredador = 4
 
 type Predador struct {
 	AgenteImpl
@@ -13,6 +13,7 @@ type Predador struct {
 	marcas []Marca
 }
 
+const IntensidadeMarcaMul = 3
 type Marca struct {
 	Pos Posicao
 	Intensidade int
@@ -49,7 +50,7 @@ func (p *Predador) mover(campoVisao CampoVisao) (Posicao, PosMovimento) {
 	for _, marca := range p.marcas {
 		marca.Intensidade--
 
-		if marca.Intensidade > -1 {
+		if marca.Intensidade > 0 {
 			marcas = append(marcas, marca)
 		}
 	}
@@ -98,14 +99,14 @@ func (p *Predador) adicionarMarcas(posAtual, posNova Posicao, posMovimento PosMo
 			valAltera := fValAltera(posMovimento)
 			for x := posAtual.X; fMaiorMenor(VerificaLimites(x), posNova.X, valAltera); x += valAltera {
 				x = VerificaLimites(x)
-				p.marcas = append(p.marcas, Marca{Pos: Posicao{X: x, Y: posNova.Y}, Intensidade: 3})
+				p.marcas = append(p.marcas, Marca{Pos: Posicao{X: x, Y: posNova.Y}, Intensidade: 3 * IntensidadeMarcaMul})
 			}
 		} else {
 			// mudou y
 			valAltera := fValAltera(posMovimento)
 			for y := posAtual.Y; fMaiorMenor(VerificaLimites(y), posNova.Y, valAltera); y += valAltera {
 				y = VerificaLimites(y)
-				p.marcas = append(p.marcas, Marca{Pos: Posicao{X: posNova.X, Y: y}, Intensidade: 3})
+				p.marcas = append(p.marcas, Marca{Pos: Posicao{X: posNova.X, Y: y}, Intensidade: 3 * IntensidadeMarcaMul})
 			}
 		}
 	}

@@ -15,19 +15,19 @@ func (p *Presa) mover(campoVisao CampoVisao) (Posicao, PosMovimento) {
 	// verifica se tem predador
 	// verifica se tem presa que mudou de cor (???)
 
-	//direcao := Direcao(-1)
+	direcao := Direcao(-1)
 	qtdePredadores := 0
-	for _, campo := range campoVisao.Posicoes {
+	for i, campo := range campoVisao.Posicoes {
 		if campo.Agente == C_Predador {
-			//direcao = Direcao(i)
+			direcao = Direcao(i)
 			qtdePredadores++
 		}
 	}
 
 	if qtdePredadores >= 3 {
 		return p.morrer()
-	/*} else if qtdePredadores > 0 {
-		return p.fugir(direcao)*/
+	} else if qtdePredadores > 0 {
+		return p.fugir(direcao)
 	} else {
 		return p.viver()
 	}
