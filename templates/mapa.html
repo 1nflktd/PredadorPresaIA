@@ -10,7 +10,7 @@
 
 			if (ambiente.LimiteIteracoes) {
 				document.getElementById("mapa").innerHTML = "<p>Limite de 5000 iterações atingido.</p>";
-			} else if (ambiente.PresasCapturadas) {
+			} else if (ambiente.PresasTotais <= 0) {
 				document.getElementById("mapa").innerHTML = "<p>Todas as presas foram capturadas.</p>";
 			}
 

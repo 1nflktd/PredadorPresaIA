@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"errors"
+	"sync"
 
 	"time"
 	"encoding/json"
@@ -19,13 +20,17 @@ type Broker struct {
 	messages chan []byte
 }
 
+var mutexClients *sync.Mutex
+
 func (b *Broker) Start() {
 	go func() {
 		for {
 			select {
 
 			case s := <-b.newClients:
+				mutexClients.Lock()
 				b.clients[s] = true
+				mutexClients.Unlock()
 				log.Println("Adicionou um client")
 
 			case s := <-b.defunctClients:
@@ -125,14 +130,17 @@ func (b *Broker) MapaHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	mutexClients = &sync.Mutex{}
+
 	b.Start()
 
 	ch := make(chan bool)
 
 	app := &App{}
+	app.Init(nPresas, nPredadores)
 
 	go func() {
-		app.Run(nPresas, nPredadores)
+		app.Run()
 	}()
 
 	go func() {
@@ -143,7 +151,11 @@ func (b *Broker) MapaHandler(w http.ResponseWriter, r *http.Request) {
 				b.messages <- jsonAmbiente
 			}
 
-			if len(b.clients) == 0 || ambienteTela.LimiteIteracoes == true || ambienteTela.PresasCapturadas == true  {
+			mutexClients.Lock()
+			lenClients := len(b.clients) == 0
+			mutexClients.Unlock()
+
+			if lenClients || ambienteTela.LimiteIteracoes == true /*|| ambienteTela.PresasTotais == 0*/  {
 				ch <- true
 			}
 

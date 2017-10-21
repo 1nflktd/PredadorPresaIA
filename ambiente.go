@@ -8,7 +8,7 @@ import (
 //	"log"
 )
 
-const TamanhoMapa = 30
+const TamanhoMapa = 5
 
 type CAgente int
 const (
@@ -26,17 +26,19 @@ type AmbienteTela struct {
 	Mapa Mapa
 	LimiteIteracoes bool
 	TamanhoMapa int
-	PresasCapturadas bool
+	PresasTotais int
 }
 
 type Ambiente struct {
 	mapa Mapa
 	agentes []Agente
 	limiteIteracoes bool
-	presasCapturadas bool
+	presasTotais int
+	mutexMapa *sync.Mutex
 }
 
 func (a *Ambiente) Init(nPresas, nPredadores int) {
+	a.mutexMapa = &sync.Mutex{}
 	// inicia todos em branco
 	for i := 0; i < TamanhoMapa; i++ {
 		for w := 0; w < TamanhoMapa; w++ {
@@ -47,6 +49,7 @@ func (a *Ambiente) Init(nPresas, nPredadores int) {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	// coloca presas (aleatorio)
+	a.presasTotais = nPresas
 	for i := 0; i < nPresas; {
 		p1, p2 := r.Intn(TamanhoMapa), r.Intn(TamanhoMapa)
 		if a.mapa[p1][p2] == C_Vazio {
@@ -72,12 +75,16 @@ func (a *Ambiente) Init(nPresas, nPredadores int) {
 }
 
 func (a *Ambiente) GetAmbienteTela() AmbienteTela {
-	return AmbienteTela{
+	a.mutexMapa.Lock()
+	ambienteTela := AmbienteTela{
 		Mapa: a.mapa,
 		LimiteIteracoes: a.limiteIteracoes,
 		TamanhoMapa: TamanhoMapa,
-		PresasCapturadas: a.presasCapturadas,
+		PresasTotais: a.presasTotais,
 	}
+	a.mutexMapa.Unlock()
+
+	return ambienteTela
 }
 
 func (a *Ambiente) Run() {
@@ -91,9 +98,9 @@ func (a *Ambiente) Run() {
 func (a *Ambiente) moveAgentes() {
 	qtdeAgentes := len(a.agentes)
 	agentes := make(chan bool, qtdeAgentes)
-	mutexMapa := &sync.Mutex{}
 	for _, ag := range a.agentes {
 		go func(agente Agente) {
+			a.mutexMapa.Lock()
 			posAtual := agente.getPosicao()
 			campoVisao := ObterCampoVisao(a.mapa, posAtual)
 			posNova := agente.mover(campoVisao)
@@ -103,9 +110,9 @@ func (a *Ambiente) moveAgentes() {
 				morreu = presa.getMorreu()
 			}
 
-			mutexMapa.Lock()
 			if morreu {
 				a.mapa[posAtual.X][posAtual.Y] = C_Vazio
+				a.presasTotais--
 			} else {
 				ok, _ := a.verificaColisao(posNova)
 
@@ -120,7 +127,7 @@ func (a *Ambiente) moveAgentes() {
 					a.mapa[posNova.X][posNova.Y] = agente.getCAgente()
 				}
 			}
-			mutexMapa.Unlock()
+			a.mutexMapa.Unlock()
 
 			agentes <- true
 		}(ag)
