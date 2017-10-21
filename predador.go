@@ -29,7 +29,7 @@ func (p *Predador) mover(campoVisao CampoVisao) (Posicao, PosMovimento) {
 	p.cacando = false
 	direcao := Direcao(-1)
 	for i, campo := range campoVisao.Posicoes {
-		if campo.Agente == C_Presa {
+		if campo.Agente == C_Presa || campo.Agente == C_Presa_Fugindo {
 			p.cacando = true
 
 			if p.iteracaoCacando == 4 {

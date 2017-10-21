@@ -12,7 +12,8 @@ function setMapa(ambiente) {
 			VAZIO: 3,
 			MARCA1: 4,
 			MARCA2: 5,
-			MARCA3: 6
+			MARCA3: 6,
+			PRESA_FUGINDO: 7
 		};
 
 		var mapa = ambiente.Mapa;
@@ -31,6 +32,9 @@ function setMapa(ambiente) {
 						break;
 					case CAgentes.PRESA:
 						imgName = "homer.jpg";
+						break;
+					case CAgentes.PRESA_FUGINDO:
+						imgName = "homer_alt.jpg";
 						break;
 					case CAgentes.MARCA1:
 						marca = "blue"

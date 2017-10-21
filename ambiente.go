@@ -18,6 +18,7 @@ const (
 	C_Marca1
 	C_Marca2
 	C_Marca3
+	C_Presa_Fugindo
 )
 
 type Mapa [TamanhoMapa][TamanhoMapa]CAgente
