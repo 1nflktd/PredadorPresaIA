@@ -34,8 +34,10 @@ func (b *Broker) Start() {
 				log.Println("Adicionou um client")
 
 			case s := <-b.defunctClients:
+				mutexClients.Lock()
 				delete(b.clients, s)
 				close(s)
+				mutexClients.Unlock()
 
 				log.Println("Removeu um client")
 

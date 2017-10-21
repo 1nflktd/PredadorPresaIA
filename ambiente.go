@@ -98,8 +98,10 @@ func (a *Ambiente) Run() {
 func (a *Ambiente) moveAgentes() {
 	qtdeAgentes := len(a.agentes)
 	agentes := make(chan bool, qtdeAgentes)
-	for _, ag := range a.agentes {
-		go func(agente Agente) {
+
+	presasFaltantes := make(chan int, a.presasTotais)
+	for iAg, ag := range a.agentes {
+		go func(agente Agente, iAg int) {
 			a.mutexMapa.Lock()
 			posAtual := agente.getPosicao()
 			campoVisao := ObterCampoVisao(a.mapa, posAtual)
@@ -113,6 +115,7 @@ func (a *Ambiente) moveAgentes() {
 			if morreu {
 				a.mapa[posAtual.X][posAtual.Y] = C_Vazio
 				a.presasTotais--
+				presasFaltantes <- iAg
 			} else {
 				ok, _ := a.verificaColisao(posNova)
 
@@ -130,11 +133,19 @@ func (a *Ambiente) moveAgentes() {
 			a.mutexMapa.Unlock()
 
 			agentes <- true
-		}(ag)
+		}(ag, iAg)
 	}
 
 	for i := 0; i < qtdeAgentes; i++ {
 		<-agentes
+	}
+
+	for i := 0; i < len(presasFaltantes); i++ {
+		select {
+			case idAg := <-presasFaltantes:
+				// remove
+				a.agentes = append(a.agentes[:idAg], a.agentes[idAg+1:]...)
+		}
 	}
 }
 
