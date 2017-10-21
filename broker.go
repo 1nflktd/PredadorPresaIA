@@ -56,7 +56,7 @@ func (b *Broker) listen() {
 			for s, _ := range b.clients {
 				s <- msg
 			}
-			log.Printf("Mandando msg para %d clients", len(b.clients))
+			//log.Printf("Mandando msg para %d clients", len(b.clients))
 			b.mutexClients.Unlock()
 		}
 	}
@@ -163,13 +163,7 @@ func (b *Broker) MapaHandler(w http.ResponseWriter, r *http.Request) {
 				b.messages <- jsonAmbiente
 			}
 
-			/*
-			b.mutexClients.Lock()
-			lenClients := true //len(b.clients) == 0
-			b.mutexClients.Unlock()
-			*/
-
-			if /*lenClients || */ambienteTela.LimiteIteracoes == true || ambienteTela.PresasTotais == 0  {
+			if ambienteTela.LimiteIteracoes == true || ambienteTela.PresasTotais == 0  {
 				break
 			}
 
