@@ -21,12 +21,7 @@ func main() {
 	var porta = flag.String("Porta", "8000", "Digite a porta do servidor")
 	flag.Parse()
 
-	b := &Broker{
-		make(map[chan []byte]bool),
-		make(chan (chan []byte)),
-		make(chan (chan []byte)),
-		make(chan []byte),
-	}
+	b := NewBroker()
 
 	http.HandleFunc("/", MainHandler)
 

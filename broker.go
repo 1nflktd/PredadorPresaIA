@@ -18,40 +18,48 @@ type Broker struct {
 	newClients chan chan []byte
 	defunctClients chan chan []byte
 	messages chan []byte
+	mutexClients *sync.Mutex
 }
 
-var mutexClients *sync.Mutex
+func NewBroker() (b *Broker) {
+	b = &Broker{
+		clients: make(map[chan []byte]bool),
+		newClients: make(chan (chan []byte)),
+		defunctClients: make(chan (chan []byte)),
+		messages: make(chan []byte, 1), // VERIFICAR ESSE BUFFER
+		mutexClients: &sync.Mutex{},
+	}
 
-func (b *Broker) Start() {
-	go func() {
-		for {
-			select {
+	go b.listen()
 
-			case s := <-b.newClients:
-				mutexClients.Lock()
-				b.clients[s] = true
-				mutexClients.Unlock()
-				log.Println("Adicionou um client")
+	return
+}
 
-			case s := <-b.defunctClients:
-				mutexClients.Lock()
-				delete(b.clients, s)
-				close(s)
-				mutexClients.Unlock()
+func (b *Broker) listen() {
+	for {
+		select {
 
-				log.Println("Removeu um client")
+		case s := <-b.newClients:
+			b.mutexClients.Lock()
+			b.clients[s] = true
+			b.mutexClients.Unlock()
 
-			case msg := <-b.messages:
-				mutexClients.Lock()
-				for s, _ := range b.clients {
-					s <- msg
-				}
-				mutexClients.Unlock()
+			log.Println("Adicionou um client")
+		case s := <-b.defunctClients:
+			b.mutexClients.Lock()
+			delete(b.clients, s)
+			b.mutexClients.Unlock()
 
-				//log.Printf("Mandando msg para %d clients", len(b.clients))
+			log.Println("Removeu um client")
+		case msg := <-b.messages:
+			b.mutexClients.Lock()
+			for s, _ := range b.clients {
+				s <- msg
 			}
+			log.Printf("Mandando msg para %d clients", len(b.clients))
+			b.mutexClients.Unlock()
 		}
-	}()
+	}
 }
 
 func (b *Broker) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -61,36 +69,40 @@ func (b *Broker) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("Connection", "keep-alive")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
 	messageChan := make(chan []byte)
 
 	b.newClients <- messageChan
 
-	notify := w.(http.CloseNotifier).CloseNotify()
-
-	go func() {
-		<-notify
-
+	defer func() {
 		b.defunctClients <- messageChan
 		log.Println("HTTP conexao fechada.")
 	}()
 
-	w.Header().Set("Content-Type", "text/event-stream")
-	w.Header().Set("Cache-Control", "no-cache")
-	w.Header().Set("Connection", "keep-alive")
+	notify := w.(http.CloseNotifier).CloseNotify()
 
 	for {
-		msg, open := <-messageChan
+		select {
+		case <-notify:
+			return
+		default:
+			msg, open := <-messageChan
 
-		if !open {
-			break
+			if !open {
+				break
+			}
+
+			fmt.Fprintf(w, "data:%s\n\n", msg)
+
+			f.Flush()
 		}
-
-		fmt.Fprintf(w, "data:%s\n\n", msg)
-
-		f.Flush()
 	}
 
-	log.Println("Terminou HTTP request em ", r.URL.Path)
+	log.Println("Terminou HTTP request 1 em ", r.URL.Path)
 }
 
 func obterValoresFormulario(r *http.Request) (error, int, int) {
@@ -134,10 +146,6 @@ func (b *Broker) MapaHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	mutexClients = &sync.Mutex{}
-
-	b.Start()
-
 	ch := make(chan bool)
 
 	app := &App{}
@@ -155,9 +163,9 @@ func (b *Broker) MapaHandler(w http.ResponseWriter, r *http.Request) {
 				b.messages <- jsonAmbiente
 			}
 
-			mutexClients.Lock()
+			b.mutexClients.Lock()
 			lenClients := len(b.clients) == 0
-			mutexClients.Unlock()
+			b.mutexClients.Unlock()
 
 			if lenClients || ambienteTela.LimiteIteracoes == true || ambienteTela.PresasTotais == 0  {
 				ch <- true
@@ -169,5 +177,5 @@ func (b *Broker) MapaHandler(w http.ResponseWriter, r *http.Request) {
 
 	<-ch
 
-	log.Println("Terminou HTTP request em ", r.URL.Path)
+	log.Println("Terminou HTTP request 2 em ", r.URL.Path)
 }
