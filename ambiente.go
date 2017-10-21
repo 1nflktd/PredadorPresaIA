@@ -8,7 +8,7 @@ import (
 //	"log"
 )
 
-const TamanhoMapa = 30
+const TamanhoMapa = 10
 
 type CAgente int
 const (
