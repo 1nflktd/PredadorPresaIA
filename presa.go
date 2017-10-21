@@ -13,8 +13,15 @@ type Presa struct {
 	qualidadeEmocao int
 	intensidadeEmocao int
 	mudouCor bool
-	cAgente CAgente
 	qtdeIteracaoPanico int
+}
+
+func (p *Presa) Init() {
+	p.morreu = false
+	p.qualidadeEmocao = 1
+	p.intensidadeEmocao = 1
+	p.mudouCor = false
+	p.qtdeIteracaoPanico = 0
 }
 
 func (p *Presa) getCAgente() CAgente {

@@ -19,6 +19,11 @@ type Marca struct {
 	Intensidade int
 }
 
+func (p *Predador) Init() {
+	p.cacando = false
+	p.iteracaoCacando = 0
+}
+
 func (p *Predador) getCAgente() CAgente {
 	return C_Predador
 }

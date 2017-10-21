@@ -6,6 +6,7 @@ import (
 )
 
 type Agente interface {
+	Init()
 	setPosicao(p Posicao)
 	setPosicaoXY(x, y int)
 	getPosicao() Posicao
