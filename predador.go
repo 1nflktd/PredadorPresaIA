@@ -22,7 +22,7 @@ func (p *Predador) getCAgente() CAgente {
 	return C_Predador
 }
 
-func (p *Predador) mover(campoVisao CampoVisao) Posicao {
+func (p *Predador) mover(campoVisao CampoVisao) (Posicao, PosMovimento) {
 	// verifica se tem presa no campo de visao
 	// se tem comeca a caca
 	p.cacando = false
@@ -64,11 +64,11 @@ func (p *Predador) mover(campoVisao CampoVisao) Posicao {
 	}
 }
 
-func (p *Predador) seguirMarca(direcao Direcao) Posicao {
+func (p *Predador) seguirMarca(direcao Direcao) (Posicao, PosMovimento) {
 	return p.moveAgente(direcao, 1)
 }
 
-func (p *Predador) cacar(direcao Direcao) Posicao {
+func (p *Predador) cacar(direcao Direcao) (Posicao, PosMovimento) {
 	velocidade := 1
 	if (p.iteracaoCacando > 0) {
 		velocidade = VelocidadeMaximaPredador
@@ -77,14 +77,13 @@ func (p *Predador) cacar(direcao Direcao) Posicao {
 	return p.moveAgente(direcao, velocidade)
 }
 
-func (p *Predador) adicionarMarcas(posAtual, posNova Posicao) {
+func (p *Predador) adicionarMarcas(posAtual, posNova Posicao, posMovimento PosMovimento) {
 	if p.cacando {
-		fValAltera := func(pAtual, pNovo int) int {
-			valAltera := 1
-			if pAtual < pNovo {
-				valAltera = -1
+		fValAltera := func(posM PosMovimento) int {
+			if posM == AUM_X || posM == AUM_Y {
+				return 1
 			}
-			return valAltera
+			return -1
 		}
 
 		fMaiorMenor := func(pAtual, pNovo, valAltera int) bool {
@@ -96,14 +95,14 @@ func (p *Predador) adicionarMarcas(posAtual, posNova Posicao) {
 
 		if posAtual.X != posNova.X {
 			// mudou x
-			valAltera := fValAltera(posAtual.X, posNova.X)
+			valAltera := fValAltera(posMovimento)
 			for x := posAtual.X; fMaiorMenor(VerificaLimites(x), posNova.X, valAltera); x += valAltera {
 				x = VerificaLimites(x)
 				p.marcas = append(p.marcas, Marca{Pos: Posicao{X: x, Y: posNova.Y}, Intensidade: 3})
 			}
 		} else {
 			// mudou y
-			valAltera := fValAltera(posAtual.Y, posNova.Y)
+			valAltera := fValAltera(posMovimento)
 			for y := posAtual.Y; fMaiorMenor(VerificaLimites(y), posNova.Y, valAltera); y += valAltera {
 				y = VerificaLimites(y)
 				p.marcas = append(p.marcas, Marca{Pos: Posicao{X: posNova.X, Y: y}, Intensidade: 3})

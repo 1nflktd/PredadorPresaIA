@@ -9,16 +9,24 @@ type Agente interface {
 	setPosicao(p Posicao)
 	setPosicaoXY(x, y int)
 	getPosicao() Posicao
-	viver() Posicao
+	viver() (Posicao, PosMovimento)
 	getCAgente() CAgente
-	mover(CampoVisao) Posicao
-	moveAgente(Direcao, int) Posicao
+	mover(CampoVisao) (Posicao, PosMovimento)
+	moveAgente(Direcao, int) (Posicao, PosMovimento)
 }
 
 type AgenteImpl struct {
 	posicao Posicao
 	cAgente CAgente
 }
+
+type PosMovimento int
+const (
+	AUM_X PosMovimento = iota
+	DIM_X
+	AUM_Y
+	DIM_Y
+)
 
 func (a *AgenteImpl) Init() {}
 
@@ -35,11 +43,11 @@ func (a *AgenteImpl) getPosicao() Posicao {
 }
 
 // Nao muda o estado do objeto
-func (a *AgenteImpl) viver() Posicao {
+func (a *AgenteImpl) viver() (Posicao, PosMovimento) {
 	return a.moveAgente(P_Aleatoria, 1)
 }
 
-func (a *AgenteImpl) moveAgente(direcao Direcao, velocidade int) Posicao {
+func (a *AgenteImpl) moveAgente(direcao Direcao, velocidade int) (Posicao, PosMovimento) {
 	pos := a.posicao
 
 	var x_y, pos_neg_para int
@@ -93,12 +101,27 @@ func (a *AgenteImpl) moveAgente(direcao Direcao, velocidade int) Posicao {
 
 	if x_y == 0 { // move x
 		pos.X += pos_neg_para
-
 		pos.X = VerificaLimites(pos.X)
 	} else { // move y
 		pos.Y += pos_neg_para
 		pos.Y = VerificaLimites(pos.Y)
 	}
 
-	return pos
+	return pos, VerificaPosMovimento(x_y, pos_neg_para)
+}
+
+func VerificaPosMovimento(x_y, pos_neg int) PosMovimento {
+	if x_y == 0 {
+		if pos_neg > 0 {
+			return AUM_X
+		} else {
+			return DIM_X
+		}
+	}
+
+	if pos_neg > 0 {
+		return AUM_Y
+	}
+
+	return DIM_Y
 }

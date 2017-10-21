@@ -8,7 +8,7 @@ import (
 //	"log"
 )
 
-const TamanhoMapa = 5
+const TamanhoMapa = 30
 
 type CAgente int
 const (
@@ -105,7 +105,7 @@ func (a *Ambiente) moveAgentes() {
 			a.mutexMapa.Lock()
 			posAtual := agente.getPosicao()
 			campoVisao := ObterCampoVisao(a.mapa, posAtual)
-			posNova := agente.mover(campoVisao)
+			posNova, posMovimento := agente.mover(campoVisao)
 
 			morreu := false
 			if presa, ehPresa := agente.(*Presa); ehPresa {
@@ -122,7 +122,7 @@ func (a *Ambiente) moveAgentes() {
 				if ok {
 					if predador, ehPredador := agente.(*Predador); ehPredador {
 						a.eliminarMarcasMapa(predador.getMarcas())
-						predador.adicionarMarcas(posAtual, posNova)
+						predador.adicionarMarcas(posAtual, posNova, posMovimento)
 						a.adicionarMarcasMapa(predador.getMarcas())
 					}
 					a.mapa[posAtual.X][posAtual.Y] = C_Vazio
