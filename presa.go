@@ -14,6 +14,7 @@ type Presa struct {
 	intensidadeEmocao int
 	mudouCor bool
 	qtdeIteracaoPanico int
+	iteracaoFugindo int
 }
 
 func (p *Presa) Init() {
@@ -22,6 +23,7 @@ func (p *Presa) Init() {
 	p.intensidadeEmocao = 1
 	p.mudouCor = false
 	p.qtdeIteracaoPanico = 0
+	p.iteracaoFugindo = 0
 }
 
 func (p *Presa) getCAgente() CAgente {
@@ -93,6 +95,21 @@ func (p *Presa) mover(campoVisao CampoVisao) (Posicao, PosMovimento) {
 	if qtdePredadores >= 3 {
 		return p.morrer()
 	} else if /*p.qualidadeEmocao < 0*/ qtdePredadores > 0 || qtdePresasFugindo > 0 {
+		if p.qualidadeEmocao <= -3 && p.intensidadeEmocao >= 3 {
+			if p.iteracaoFugindo >= 8 {
+				p.iteracaoFugindo = 0 // ultima iteracao velocidade maxima
+			} else {
+				p.iteracaoFugindo++
+			}
+		} else {
+			p.iteracaoFugindo = 1
+		}
+
+		velocidade := 1
+		if p.iteracaoFugindo > 0 {
+			velocidade = VelocidadeMaximaPresa
+		}
+
 		p.qtdeIteracaoPanico = 0
 		var direcaoFuga Direcao
 		if direcaoPredador > -1 {
@@ -100,7 +117,7 @@ func (p *Presa) mover(campoVisao CampoVisao) (Posicao, PosMovimento) {
 		} else {
 			direcaoFuga = Direcao(direcaoPresaFugindo)
 		}
-		return p.fugir(direcaoFuga)
+		return p.fugir(direcaoFuga, velocidade)
 	} else {
 		p.qtdeIteracaoPanico++
 		p.alterarQualidadeEmocao(qtdePresasLivres, -3, 3)
@@ -115,10 +132,10 @@ func (p *Presa) mover(campoVisao CampoVisao) (Posicao, PosMovimento) {
 	}
 }
 
-func (p *Presa) fugir(direcao Direcao) (Posicao, PosMovimento) {
+func (p *Presa) fugir(direcao Direcao, velocidade int) (Posicao, PosMovimento) {
 	p.mudouCor = true
 	// vai na direcao oposta
-	return p.moveAgente(ObterDirecaoOposta(direcao), 1)
+	return p.moveAgente(ObterDirecaoOposta(direcao), velocidade)
 }
 
 func (p *Presa) morrer() (Posicao, PosMovimento) {
