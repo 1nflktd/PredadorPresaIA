@@ -55,7 +55,7 @@ func (p *Predador) mover(campoVisao CampoVisao) (Posicao, PosMovimento) {
 	for _, marca := range p.marcas {
 		marca.Intensidade--
 
-		if marca.Intensidade > 0 {
+		if marca.Intensidade > -1 {
 			marcas = append(marcas, marca)
 		}
 	}

@@ -175,8 +175,10 @@ func (a *Ambiente) adicionarMarcasMapa(marcas []Marca) {
 			return C_Marca3
 		} else if intensidade > IntensidadeMarcaMul {
 			return C_Marca2
+		} else if intensidade > 0 {
+			return C_Marca1
 		}
-		return C_Marca1
+		return C_Vazio
 	}
 
 	for _, marca := range marcas {
