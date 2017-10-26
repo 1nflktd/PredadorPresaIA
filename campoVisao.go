@@ -23,66 +23,70 @@ type CampoVisao struct {
 	// 6 - y_min_1_x_pls_1	// sudeste
 	// 7 - y_min_1 			// sul
 
-	Posicoes [8]struct {
+	Posicoes [16]struct {
 		Pos Posicao
 		Agente CAgente
 	}
 }
 
 func ObterCampoVisao(mapa Mapa, posAgente Posicao) (CampoVisao) {
-	yNorte := posAgente.Y + 1
-	if yNorte >= TamanhoMapa {
-		yNorte = 0
-	}
-
-	ySul := posAgente.Y - 1
-	if ySul < 0 {
-		ySul = TamanhoMapa - 1
-	}
-
-	xLeste := posAgente.X + 1
-	if xLeste >= TamanhoMapa {
-		xLeste = 0
-	}
-
-	xOeste := posAgente.X - 1
-	if xOeste < 0 {
-		xOeste = TamanhoMapa - 1
-	}
-
 	campoVisao := CampoVisao{}
 
-	// norte
-	campoVisao.Posicoes[P_Norte].Pos = Posicao{posAgente.X, yNorte}
-	campoVisao.Posicoes[P_Norte].Agente = mapa[posAgente.X][yNorte]
+	for i := 1; i < 3; i++ {
+		yNorte := posAgente.Y + i
+		if yNorte >= TamanhoMapa {
+			yNorte = 0
+		}
 
-	// noroeste
-	campoVisao.Posicoes[P_Noroeste].Pos = Posicao{xOeste, yNorte}
-	campoVisao.Posicoes[P_Noroeste].Agente = mapa[xOeste][yNorte]
+		ySul := posAgente.Y - i
+		if ySul < 0 {
+			ySul = TamanhoMapa - 1
+		}
 
-	// nordeste
-	campoVisao.Posicoes[P_Nordeste].Pos = Posicao{xLeste, yNorte}
-	campoVisao.Posicoes[P_Nordeste].Agente = mapa[xLeste][yNorte]
+		xLeste := posAgente.X + i
+		if xLeste >= TamanhoMapa {
+			xLeste = 0
+		}
 
-	// leste
-	campoVisao.Posicoes[P_Leste].Pos = Posicao{xLeste, posAgente.Y}
-	campoVisao.Posicoes[P_Leste].Agente = mapa[xLeste][posAgente.Y]
+		xOeste := posAgente.X - i
+		if xOeste < 0 {
+			xOeste = TamanhoMapa - 1
+		}
 
-	// oeste
-	campoVisao.Posicoes[P_Oeste].Pos = Posicao{xOeste, posAgente.Y}
-	campoVisao.Posicoes[P_Oeste].Agente = mapa[xOeste][posAgente.Y]
+		posVetor := Direcao((i - 1) * 8)
 
-	// sudoeste
-	campoVisao.Posicoes[P_Sudoeste].Pos = Posicao{xOeste, ySul}
-	campoVisao.Posicoes[P_Sudoeste].Agente = mapa[xOeste][ySul]
+		// norte
+		campoVisao.Posicoes[P_Norte + posVetor].Pos = Posicao{posAgente.X, yNorte}
+		campoVisao.Posicoes[P_Norte + posVetor].Agente = mapa[posAgente.X][yNorte]
 
-	// sudeste
-	campoVisao.Posicoes[P_Sudeste].Pos = Posicao{xLeste, ySul}
-	campoVisao.Posicoes[P_Sudeste].Agente = mapa[xLeste][ySul]
+		// noroeste
+		campoVisao.Posicoes[P_Noroeste + posVetor].Pos = Posicao{xOeste, yNorte}
+		campoVisao.Posicoes[P_Noroeste + posVetor].Agente = mapa[xOeste][yNorte]
 
-	// sul
-	campoVisao.Posicoes[P_Sul].Pos = Posicao{posAgente.X, ySul}
-	campoVisao.Posicoes[P_Sul].Agente = mapa[posAgente.X][ySul]
+		// nordeste
+		campoVisao.Posicoes[P_Nordeste + posVetor].Pos = Posicao{xLeste, yNorte}
+		campoVisao.Posicoes[P_Nordeste + posVetor].Agente = mapa[xLeste][yNorte]
+
+		// leste
+		campoVisao.Posicoes[P_Leste + posVetor].Pos = Posicao{xLeste, posAgente.Y}
+		campoVisao.Posicoes[P_Leste + posVetor].Agente = mapa[xLeste][posAgente.Y]
+
+		// oeste
+		campoVisao.Posicoes[P_Oeste + posVetor].Pos = Posicao{xOeste, posAgente.Y}
+		campoVisao.Posicoes[P_Oeste + posVetor].Agente = mapa[xOeste][posAgente.Y]
+
+		// sudoeste
+		campoVisao.Posicoes[P_Sudoeste + posVetor].Pos = Posicao{xOeste, ySul}
+		campoVisao.Posicoes[P_Sudoeste + posVetor].Agente = mapa[xOeste][ySul]
+
+		// sudeste
+		campoVisao.Posicoes[P_Sudeste + posVetor].Pos = Posicao{xLeste, ySul}
+		campoVisao.Posicoes[P_Sudeste + posVetor].Agente = mapa[xLeste][ySul]
+
+		// sul
+		campoVisao.Posicoes[P_Sul + posVetor].Pos = Posicao{posAgente.X, ySul}
+		campoVisao.Posicoes[P_Sul + posVetor].Agente = mapa[posAgente.X][ySul]
+	}
 
 	return campoVisao
 }

@@ -57,6 +57,7 @@ func (a *Ambiente) Init(nPresas, nPredadores int) {
 			a.mapa[p1][p2] = C_Presa
 			presa := &Presa{}
 			presa.Init()
+			presa.setRand(r)
 			presa.setPosicaoXY(p1, p2)
 			a.agentes = append(a.agentes, presa)
 			i++
@@ -70,6 +71,7 @@ func (a *Ambiente) Init(nPresas, nPredadores int) {
 			a.mapa[p1][p2] = C_Predador
 			predador := &Predador{}
 			predador.Init()
+			predador.setRand(r)
 			predador.setPosicaoXY(p1, p2)
 			a.agentes = append(a.agentes, predador)
 			i++
@@ -105,9 +107,10 @@ func (a *Ambiente) moveAgentes() {
 	presasFaltantes := make(chan int, a.presasTotais)
 	for iAg, ag := range a.agentes {
 		go func(agente Agente, iAg int) {
-			a.mutexMapa.Lock()
 			posAtual := agente.getPosicao()
+			a.mutexMapa.Lock()
 			campoVisao := ObterCampoVisao(a.mapa, posAtual)
+			a.mutexMapa.Unlock()
 			posNova, posMovimento := agente.mover(campoVisao)
 
 			morreu := false
@@ -115,6 +118,7 @@ func (a *Ambiente) moveAgentes() {
 				morreu = presa.getMorreu()
 			}
 
+			a.mutexMapa.Lock()
 			if morreu {
 				a.mapa[posAtual.X][posAtual.Y] = C_Vazio
 				a.presasTotais--

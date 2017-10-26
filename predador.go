@@ -13,7 +13,7 @@ type Predador struct {
 	marcas []Marca
 }
 
-const IntensidadeMarcaMul = 3
+const IntensidadeMarcaMul = 5
 type Marca struct {
 	Pos Posicao
 	Intensidade int
@@ -43,10 +43,10 @@ func (p *Predador) mover(campoVisao CampoVisao) (Posicao, PosMovimento) {
 				p.iteracaoCacando++
 			}
 
-			direcao = Direcao(i)
+			direcao = Direcao(i % 8)
 			break
 		} else if VerificaSeEhMarca(campo.Agente) {
-			direcao = Direcao(i)
+			direcao = Direcao(i % 8)
 		}
 	}
 

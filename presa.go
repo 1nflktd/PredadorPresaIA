@@ -78,14 +78,14 @@ func (p *Presa) mover(campoVisao CampoVisao) (Posicao, PosMovimento) {
 	qtdePresasFugindo := 0
 	for i, campo := range campoVisao.Posicoes {
 		if campo.Agente == C_Predador {
-			direcaoPredador = Direcao(i)
+			direcaoPredador = Direcao(i % 8)
 			qtdePredadores++
 			p.alterarIntensidadeEmocao(2, 0, 3)
 			p.alterarQualidadeEmocao(-2, -3, 3)
 		} else if campo.Agente == C_Presa {
 			qtdePresasLivres++
 		} else if campo.Agente == C_Presa_Fugindo {
-			direcaoPresaFugindo = Direcao(i)
+			direcaoPresaFugindo = Direcao(i % 8)
 			qtdePresasFugindo++
 			p.alterarIntensidadeEmocao(1, 0, 3)
 			p.alterarQualidadeEmocao(-1, -3, 3)

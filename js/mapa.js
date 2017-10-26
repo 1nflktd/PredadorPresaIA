@@ -32,13 +32,16 @@ function setMapa(ambiente) {
 					imgName = "homer_alt.jpg";
 					break;
 				case CAgentes.MARCA1:
-					marca = "blue"
+					marca = "blue";
 					break;
 				case CAgentes.MARCA2:
-					marca = "yellow"
+					marca = "yellow";
 					break;
 				case CAgentes.MARCA3:
-					marca = "red"
+					marca = "red";
+					break;
+				case CAgentes.VAZIO:
+					marca = "white";
 					break;
 			}
 

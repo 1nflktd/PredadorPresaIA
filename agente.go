@@ -1,12 +1,13 @@
 package main
 
 import (
-	"time"
+	// "time"
 	"math/rand"
 )
 
 type Agente interface {
 	Init()
+	setRand(r *rand.Rand)
 	setPosicao(p Posicao)
 	setPosicaoXY(x, y int)
 	getPosicao() Posicao
@@ -19,6 +20,7 @@ type Agente interface {
 type AgenteImpl struct {
 	posicao Posicao
 	cAgente CAgente
+	r *rand.Rand
 }
 
 type PosMovimento int
@@ -30,6 +32,10 @@ const (
 )
 
 func (a *AgenteImpl) Init() {}
+
+func (a *AgenteImpl) setRand(r *rand.Rand) {
+	a.r = r
+}
 
 func (a *AgenteImpl) setPosicao(p Posicao) {
 	a.posicao = p
@@ -53,13 +59,13 @@ func (a *AgenteImpl) moveAgente(direcao Direcao, velocidade int) (Posicao, PosMo
 
 	var x_y, pos_neg_para int
 
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	//r := rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	// verifica se move x ou y
-	x_y = r.Intn(2)
+	x_y = a.r.Intn(1000) % 2
 
 	// verifica se positivo ou negativo
-	pos_neg_para = r.Intn(3) - 1
+	pos_neg_para = (a.r.Intn(1002) % 3) - 1
 
 	if direcao != P_Aleatoria {
 		switch (direcao) {
