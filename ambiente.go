@@ -109,7 +109,12 @@ func (a *Ambiente) moveAgentes() {
 		go func(agente Agente, iAg int) {
 			posAtual := agente.getPosicao()
 			a.mutexMapa.Lock()
-			campoVisao := ObterCampoVisao(a.mapa, posAtual)
+			var campoVisao CampoVisao
+			if _, ehPresa := agente.(*Presa); ehPresa {
+				campoVisao = ObterCampoVisaoPresa(a.mapa, posAtual)
+			} else {
+				campoVisao = ObterCampoVisaoPredador(a.mapa, posAtual)
+			}
 			a.mutexMapa.Unlock()
 			posNova, posMovimento := agente.mover(campoVisao)
 

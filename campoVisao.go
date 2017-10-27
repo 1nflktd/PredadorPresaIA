@@ -23,16 +23,24 @@ type CampoVisao struct {
 	// 6 - y_min_1_x_pls_1	// sudeste
 	// 7 - y_min_1 			// sul
 
-	Posicoes [16]struct {
+	Posicoes [32]struct {
 		Pos Posicao
 		Agente CAgente
 	}
 }
 
-func ObterCampoVisao(mapa Mapa, posAgente Posicao) (CampoVisao) {
+func ObterCampoVisaoPresa(mapa Mapa, posAgente Posicao) (CampoVisao) {
+	return ObterCampoVisao(mapa, posAgente, 1)
+}
+
+func ObterCampoVisaoPredador(mapa Mapa, posAgente Posicao) (CampoVisao) {
+	return ObterCampoVisao(mapa, posAgente, 4)
+}
+
+func ObterCampoVisao(mapa Mapa, posAgente Posicao, tamanho int) (CampoVisao) {
 	campoVisao := CampoVisao{}
 
-	for i := 1; i < 3; i++ {
+	for i := 1; i <= tamanho; i++ {
 		yNorte := posAgente.Y + i
 		if yNorte >= TamanhoMapa {
 			yNorte = 0
