@@ -32,22 +32,23 @@ function setMapa(ambiente) {
 					imgName = "homer_alt.jpg";
 					break;
 				case CAgentes.MARCA1:
-					marca = "blue";
+					marca = "#ffff00";
 					break;
 				case CAgentes.MARCA2:
-					marca = "yellow";
+					marca = "#ff9933";
 					break;
 				case CAgentes.MARCA3:
-					marca = "red";
+					marca = "#ff471a";
 					break;
 				case CAgentes.VAZIO:
 					marca = "white";
 					break;
 			}
 
+			var style = "height: 25px; width: 25px; padding: 0px;";
 			var img = imgName != "" ? "<img src=\"../images/" + imgName + "\">" : "";
-			var style = marca != "" ? "style='background-color:" + marca + "'" : "";
-			table += "<td " + style + ">" + img + "</td>";
+			style += marca != "" ? "background-color:" + marca : "";
+			table += "<td style='" + style + "' class='d-inline-block'>" + img + "</td>";
 		}
 		table += "</tr>";
 	}
