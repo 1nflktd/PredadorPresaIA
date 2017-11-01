@@ -47,17 +47,18 @@ func (a *Ambiente) Init(nPresas, nPredadores int) {
 		}
 	}
 
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	randPos := rand.New(rand.NewSource(time.Now().UnixNano()))
+	mutexRandPos := &sync.Mutex{}
 
 	// coloca presas (aleatorio)
 	a.presasTotais = nPresas
 	for i := 0; i < nPresas; {
-		p1, p2 := r.Intn(TamanhoMapa), r.Intn(TamanhoMapa)
+		p1, p2 := randPos.Intn(TamanhoMapa), randPos.Intn(TamanhoMapa)
 		if a.mapa[p1][p2] == C_Vazio {
 			a.mapa[p1][p2] = C_Presa
 			presa := &Presa{}
 			presa.Init()
-			presa.setRand(r)
+			presa.setRandPos(randPos, mutexRandPos)
 			presa.setPosicaoXY(p1, p2)
 			a.agentes = append(a.agentes, presa)
 			i++
@@ -66,12 +67,12 @@ func (a *Ambiente) Init(nPresas, nPredadores int) {
 
 	// coloca predadores (aleatorio)
 	for i := 0; i < nPredadores; {
-		p1, p2 := r.Intn(TamanhoMapa), r.Intn(TamanhoMapa)
+		p1, p2 := randPos.Intn(TamanhoMapa), randPos.Intn(TamanhoMapa)
 		if a.mapa[p1][p2] == C_Vazio {
 			a.mapa[p1][p2] = C_Predador
 			predador := &Predador{}
 			predador.Init()
-			predador.setRand(r)
+			predador.setRandPos(randPos, mutexRandPos)
 			predador.setPosicaoXY(p1, p2)
 			a.agentes = append(a.agentes, predador)
 			i++

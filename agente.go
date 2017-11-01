@@ -3,13 +3,14 @@ package main
 import (
 	// "time"
 	"math/rand"
+	"sync"
 )
 
 type Agente interface {
 	Init()
-	setRand(r *rand.Rand)
-	setPosicao(p Posicao)
-	setPosicaoXY(x, y int)
+	setRandPos(*rand.Rand, *sync.Mutex)
+	setPosicao(Posicao)
+	setPosicaoXY(int, int)
 	getPosicao() Posicao
 	viver() (Posicao, PosMovimento)
 	getCAgente() CAgente
@@ -20,7 +21,8 @@ type Agente interface {
 type AgenteImpl struct {
 	posicao Posicao
 	cAgente CAgente
-	r *rand.Rand
+	randPos *rand.Rand
+	mutexRandPos *sync.Mutex
 }
 
 type PosMovimento int
@@ -33,8 +35,9 @@ const (
 
 func (a *AgenteImpl) Init() {}
 
-func (a *AgenteImpl) setRand(r *rand.Rand) {
-	a.r = r
+func (a *AgenteImpl) setRandPos(randPos *rand.Rand, mutexRandPos *sync.Mutex) {
+	a.mutexRandPos = mutexRandPos
+	a.randPos = randPos
 }
 
 func (a *AgenteImpl) setPosicao(p Posicao) {
@@ -59,13 +62,15 @@ func (a *AgenteImpl) moveAgente(direcao Direcao, velocidade int) (Posicao, PosMo
 
 	var x_y, pos_neg_para int
 
-	//r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	a.mutexRandPos.Lock()
 
 	// verifica se move x ou y
-	x_y = a.r.Intn(1000) % 2
+	x_y = a.randPos.Intn(1000) % 2
 
 	// verifica se positivo ou negativo
-	pos_neg_para = (a.r.Intn(1002) % 3) - 1
+	pos_neg_para = (a.randPos.Intn(1002) % 3) - 1
+
+	a.mutexRandPos.Unlock()
 
 	if direcao != P_Aleatoria {
 		switch (direcao) {
