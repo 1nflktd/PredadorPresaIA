@@ -146,3 +146,11 @@ func (p *Presa) morrer() (Posicao, PosMovimento) {
 func (p *Presa) getMorreu() bool {
 	return p.morreu
 }
+
+func (p *Presa) getFugindo() bool {
+	return p.mudouCor
+}
+
+func (p *Presa) getIteracaoFugindo() int {
+	return p.iteracaoFugindo
+}

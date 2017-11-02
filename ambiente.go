@@ -25,21 +25,32 @@ type Mapa [TamanhoMapa][TamanhoMapa]CAgente
 
 type AmbienteTela struct {
 	Mapa Mapa
+	Log Log
 	LimiteIteracoes bool
 	TamanhoMapa int
 	PresasTotais int
+	IteracaoAtual int
 }
 
 type Ambiente struct {
 	mapa Mapa
+	log Log
 	agentes []Agente
 	limiteIteracoes bool
 	presasTotais int
 	mutexMapa *sync.Mutex
+	mutexLog *sync.Mutex
+	mutexIteracaoAtual *sync.Mutex
+	iteracaoAtual int
 }
 
 func (a *Ambiente) Init(nPresas, nPredadores int) {
 	a.mutexMapa = &sync.Mutex{}
+	a.mutexLog = &sync.Mutex{}
+	a.mutexIteracaoAtual = &sync.Mutex{}
+
+	a.log = Log{}
+
 	// inicia todos em branco
 	for i := 0; i < TamanhoMapa; i++ {
 		for w := 0; w < TamanhoMapa; w++ {
@@ -82,19 +93,36 @@ func (a *Ambiente) Init(nPresas, nPredadores int) {
 
 func (a *Ambiente) GetAmbienteTela() AmbienteTela {
 	a.mutexMapa.Lock()
-	ambienteTela := AmbienteTela{
-		Mapa: a.mapa,
-		LimiteIteracoes: a.limiteIteracoes,
-		TamanhoMapa: TamanhoMapa,
-		PresasTotais: a.presasTotais,
-	}
+	mapa := a.mapa
+	limiteIteracoes := a.limiteIteracoes
+	presasTotais := a.presasTotais
 	a.mutexMapa.Unlock()
+
+	a.mutexIteracaoAtual.Lock()
+	iteracaoAtual := a.iteracaoAtual
+	a.mutexIteracaoAtual.Unlock()
+
+	a.mutexLog.Lock()
+	log := a.log
+	a.mutexLog.Unlock()
+
+	ambienteTela := AmbienteTela{
+		Mapa: mapa,
+		LimiteIteracoes: limiteIteracoes,
+		TamanhoMapa: TamanhoMapa,
+		PresasTotais: presasTotais,
+		IteracaoAtual: iteracaoAtual,
+		Log: log,
+	}
 
 	return ambienteTela
 }
 
 func (a *Ambiente) Run() {
 	for i := 0; i < 5000; i++ {
+		a.mutexIteracaoAtual.Lock()
+		a.iteracaoAtual = i
+		a.mutexIteracaoAtual.Unlock()
 		a.moveAgentes()
 		time.Sleep(500 * time.Millisecond)
 	}
@@ -102,6 +130,10 @@ func (a *Ambiente) Run() {
 }
 
 func (a *Ambiente) moveAgentes() {
+	a.mutexLog.Lock()
+	a.log.excluirAgentes()
+	a.mutexLog.Unlock()
+
 	qtdeAgentes := len(a.agentes)
 	agentes := make(chan bool, qtdeAgentes)
 
@@ -124,12 +156,14 @@ func (a *Ambiente) moveAgentes() {
 				morreu = presa.getMorreu()
 			}
 
-			a.mutexMapa.Lock()
 			if morreu {
+				a.mutexMapa.Lock()
 				a.mapa[posAtual.X][posAtual.Y] = C_Vazio
 				a.presasTotais--
+				a.mutexMapa.Unlock()
 				presasFaltantes <- iAg
 			} else {
+				a.mutexMapa.Lock()
 				ok, _ := a.verificaColisao(posNova)
 
 				if ok {
@@ -142,8 +176,12 @@ func (a *Ambiente) moveAgentes() {
 					agente.setPosicao(posNova) // move o elemento
 					a.mapa[posNova.X][posNova.Y] = agente.getCAgente()
 				}
+				a.mutexMapa.Unlock()
+
+				a.mutexLog.Lock()
+				a.log.adicionarAgente(agente)
+				a.mutexLog.Unlock()
 			}
-			a.mutexMapa.Unlock()
 
 			agentes <- true
 		}(ag, iAg)
@@ -156,6 +194,14 @@ func (a *Ambiente) moveAgentes() {
 	for i := 0; i < len(presasFaltantes); i++ {
 		select {
 			case idAg := <-presasFaltantes:
+				a.mutexIteracaoAtual.Lock()
+				iteracaoAtual := a.iteracaoAtual
+				a.mutexIteracaoAtual.Unlock()
+
+				a.mutexLog.Lock()
+				a.log.adicionarPresaMorta(a.agentes[idAg], iteracaoAtual)
+				a.mutexLog.Unlock()
+
 				// remove
 				a.agentes = append(a.agentes[:idAg], a.agentes[idAg+1:]...)
 		}

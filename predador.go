@@ -120,3 +120,11 @@ func (p *Predador) adicionarMarcas(posAtual, posNova Posicao, posMovimento PosMo
 func (p *Predador) getMarcas() []Marca {
 	return p.marcas
 }
+
+func (p *Predador) getCacando() bool {
+	return p.cacando
+}
+
+func (p *Predador) getIteracaoCacando() int {
+	return p.iteracaoCacando
+}
