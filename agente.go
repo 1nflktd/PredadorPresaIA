@@ -7,18 +7,20 @@ import (
 )
 
 type Agente interface {
-	Init()
+	Init(int)
 	setRandPos(*rand.Rand, *sync.Mutex)
 	setPosicao(Posicao)
 	setPosicaoXY(int, int)
 	getPosicao() Posicao
 	viver() (Posicao, PosMovimento)
 	getCAgente() CAgente
+	getId() int
 	mover(CampoVisao) (Posicao, PosMovimento)
 	moveAgente(Direcao, int) (Posicao, PosMovimento)
 }
 
 type AgenteImpl struct {
+	id int
 	posicao Posicao
 	cAgente CAgente
 	randPos *rand.Rand
@@ -33,7 +35,7 @@ const (
 	DIM_Y
 )
 
-func (a *AgenteImpl) Init() {}
+func (a *AgenteImpl) Init(id int) {}
 
 func (a *AgenteImpl) setRandPos(randPos *rand.Rand, mutexRandPos *sync.Mutex) {
 	a.mutexRandPos = mutexRandPos
@@ -50,6 +52,10 @@ func (a *AgenteImpl) setPosicaoXY(x, y int) {
 
 func (a *AgenteImpl) getPosicao() Posicao {
 	return a.posicao
+}
+
+func (a *AgenteImpl) getId() int {
+	return a.id
 }
 
 // Nao muda o estado do objeto

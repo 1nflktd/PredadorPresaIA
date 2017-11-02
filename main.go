@@ -25,7 +25,7 @@ func main() {
 
 	http.HandleFunc("/", MainHandler)
 
-	http.Handle("/mapa/", http.HandlerFunc(b.MapaHandler))
+	http.Handle("/ambiente/", http.HandlerFunc(b.AmbienteHandler))
 
 	http.Handle("/events/", b)
 

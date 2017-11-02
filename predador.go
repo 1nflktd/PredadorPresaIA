@@ -4,7 +4,7 @@ import (
 //	"log"
 )
 
-const VelocidadeMaximaPredador = 4
+const VelocidadeMaximaPredador = 3
 
 type Predador struct {
 	AgenteImpl
@@ -19,7 +19,8 @@ type Marca struct {
 	Intensidade int
 }
 
-func (p *Predador) Init() {
+func (p *Predador) Init(id int) {
+	p.id = id
 	p.cacando = false
 	p.iteracaoCacando = 0
 }
@@ -33,6 +34,7 @@ func (p *Predador) mover(campoVisao CampoVisao) (Posicao, PosMovimento) {
 	// se tem comeca a caca
 	p.cacando = false
 	direcao := Direcao(-1)
+	marca := C_Vazio
 	for i, campo := range campoVisao.Posicoes {
 		if campo.Agente == C_Presa || campo.Agente == C_Presa_Fugindo {
 			p.cacando = true
@@ -45,8 +47,9 @@ func (p *Predador) mover(campoVisao CampoVisao) (Posicao, PosMovimento) {
 
 			direcao = Direcao(i % 8)
 			break
-		} else if VerificaSeEhMarca(campo.Agente) {
+		} else if VerificaSeEhMarca(campo.Agente) && campo.Agente > marca && marca != C_Marca3 { // pega a marca mais recente
 			direcao = Direcao(i % 8)
+			marca = campo.Agente
 		}
 	}
 

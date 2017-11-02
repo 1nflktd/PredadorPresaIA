@@ -68,7 +68,7 @@ func (a *Ambiente) Init(nPresas, nPredadores int) {
 		if a.mapa[p1][p2] == C_Vazio {
 			a.mapa[p1][p2] = C_Presa
 			presa := &Presa{}
-			presa.Init()
+			presa.Init(i)
 			presa.setRandPos(randPos, mutexRandPos)
 			presa.setPosicaoXY(p1, p2)
 			a.agentes = append(a.agentes, presa)
@@ -82,7 +82,7 @@ func (a *Ambiente) Init(nPresas, nPredadores int) {
 		if a.mapa[p1][p2] == C_Vazio {
 			a.mapa[p1][p2] = C_Predador
 			predador := &Predador{}
-			predador.Init()
+			predador.Init(i)
 			predador.setRandPos(randPos, mutexRandPos)
 			predador.setPosicaoXY(p1, p2)
 			a.agentes = append(a.agentes, predador)

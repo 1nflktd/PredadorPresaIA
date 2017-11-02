@@ -131,14 +131,14 @@ func obterValoresFormulario(r *http.Request) (error, int, int) {
 	return nil, int(nPresas), int(nPredadores)
 }
 
-func (b *Broker) MapaHandler(w http.ResponseWriter, r *http.Request) {
+func (b *Broker) AmbienteHandler(w http.ResponseWriter, r *http.Request) {
 	errForm, nPresas, nPredadores := obterValoresFormulario(r)
 	if errForm != nil {
 		http.Redirect(w, r, "/", 200)
 		return
 	}
 
-	if tmpl, err := template.New("mapa.html").ParseFiles("templates/mapa.html"); err != nil {
+	if tmpl, err := template.New("ambiente.html").ParseFiles("templates/ambiente.html"); err != nil {
 		log.Fatal("Erro ao parsear template.", err)
 	} else {
 		if err = tmpl.Execute(w, nil); err != nil {

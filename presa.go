@@ -17,7 +17,8 @@ type Presa struct {
 	iteracaoFugindo int
 }
 
-func (p *Presa) Init() {
+func (p *Presa) Init(id int) {
+	p.id = id
 	p.morreu = false
 	p.qualidadeEmocao = 1
 	p.intensidadeEmocao = 1
@@ -154,4 +155,12 @@ func (p *Presa) getFugindo() bool {
 
 func (p *Presa) getIteracaoFugindo() int {
 	return p.iteracaoFugindo
+}
+
+func (p *Presa) getQualidadeEmocao() int {
+	return p.qualidadeEmocao
+}
+
+func (p *Presa) getIntensidadeEmocao() int {
+	return p.intensidadeEmocao
 }
