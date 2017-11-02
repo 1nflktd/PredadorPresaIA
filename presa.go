@@ -119,6 +119,7 @@ func (p *Presa) mover(campoVisao CampoVisao) (Posicao, PosMovimento) {
 		}
 		return p.fugir(direcaoFuga, velocidade)
 	} else {
+		p.iteracaoFugindo = 0
 		p.qtdeIteracaoPanico++
 		p.alterarQualidadeEmocao(qtdePresasLivres, -3, 3)
 		if p.qtdeIteracaoPanico > QtdeIteracaoPanico && qtdePresasLivres == 0 {

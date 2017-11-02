@@ -9,8 +9,8 @@ var CAgentes = {
 };
 
 function setLog(log) {
-	var logPredadores = "<p>Predadores</p>";
-		logPredadores+= "<table class=\"table table-bordered table-responsive\">";
+	var logPredadores = "<table class=\"table table-bordered table-responsive table-sm\">";
+		logPredadores+= "<caption>Predadores</caption>";
 		logPredadores+= "<thead>";
 		logPredadores+= 	"<th>Posicao</th>";
 		logPredadores+= 	"<th>Cacando</th>";
@@ -19,8 +19,8 @@ function setLog(log) {
 		logPredadores+= "</thead>";
 		logPredadores+= "<tbody>";
 
-	var logPresas = "<p>Presas</p>";
-		logPresas+= "<table class=\"table table-bordered table-responsive\">";
+	var logPresas = "<table class=\"table table-bordered table-responsive table-sm\">";
+		logPresas+= "<caption>Presas</caption>";
 		logPresas+= "<thead>";
 		logPresas+= 	"<th>Posicao</th>";
 		logPresas+= 	"<th>Fugindo</th>";
@@ -33,7 +33,7 @@ function setLog(log) {
 		var agente = log.Agentes[i];
 
 		var linha = "<tr>";
-			linha+= "<td>X: " + agente.Posicao.X + ", Y: " + agente.Posicao.Y + "</td>";
+			linha+= "<td>X:" + agente.Posicao.X + " Y:" + agente.Posicao.Y + "</td>";
 		if (agente.CAgente == CAgentes.PREDADOR) {
 			logPredadores += linha;
 			logPredadores += "<td>" + agente.Cacando + "</td>";
@@ -57,28 +57,30 @@ function setLog(log) {
     document.getElementById("log-predadores").innerHTML = logPredadores;
     document.getElementById("log-presas").innerHTML = logPresas;
 
-	var logPresasMortas = "<p>Presas mortas</p>";
-		logPresasMortas+= "<table class=\"table table-bordered table-responsive\">";
-		logPresasMortas+= "<thead>";
-		logPresasMortas+= 	"<th>Posicao</th>";
-		logPresasMortas+= 	"<th>Iteracao morreu</th>";
-		logPresasMortas+= "</thead>";
-		logPresasMortas+= "<tbody>";
+    if (log.PresasMortas != null) {
+		var logPresasMortas = "<p>Presas mortas</p>";
+			logPresasMortas+= "<table class=\"table table-bordered table-responsive table-sm\">";
+			logPresasMortas+= "<thead>";
+			logPresasMortas+= 	"<th>Posicao</th>";
+			logPresasMortas+= 	"<th>Iteracao morreu</th>";
+			logPresasMortas+= "</thead>";
+			logPresasMortas+= "<tbody>";
 
-	var nPresasMortas = log.PresasMortas.length
-	for (i = 0; i < nPresasMortas; i++) {
-		var presaMorta = log.PresasMortas[i];
+		var nPresasMortas = log.PresasMortas.length;
+		for (i = 0; i < nPresasMortas; i++) {
+			var presaMorta = log.PresasMortas[i];
 
-		logPresasMortas+= "<tr>";
-		logPresasMortas+= "<td>X: " + presaMorta.Posicao.X + ", Y: " + presaMorta.Posicao.Y + "</td>";
-		logPresasMortas+= "<td>" + presaMorta.IteracaoMorreu + "</td>";
-		logPresasMortas+= "</tr>";
+			logPresasMortas+= "<tr>";
+			logPresasMortas+= "<td>X:" + presaMorta.Posicao.X + " Y:" + presaMorta.Posicao.Y + "</td>";
+			logPresasMortas+= "<td>" + presaMorta.IteracaoMorreu + "</td>";
+			logPresasMortas+= "</tr>";
+		}
+
+		logPresasMortas+= "</tbody>";
+		logPresasMortas+= "</table>";
+
+		document.getElementById("log-presas-mortas").innerHTML = logPresasMortas;
 	}
-
-	logPresasMortas+= "</tbody>";
-	logPresasMortas+= "</table>";
-
-    document.getElementById("log-presas-mortas").innerHTML = logPresasMortas;
 }
 
 function setAmbiente(ambiente) {
@@ -89,12 +91,22 @@ function setAmbiente(ambiente) {
 	var mapa = ambiente.Mapa;
     var tamanhoMapa = ambiente.TamanhoMapa;
 
-    document.getElementById("iteracao-atual").innerHTML = ambiente.IteracaoAtual;
+	var styleTd = "height: 25px; width: 25px; padding: 0px;";
 
 	var table = "<table class=\"table table-bordered table-responsive\">";
+		table+= "<caption>Iteração atual: " + ambiente.IteracaoAtual + "</caption>";
+		table+= "<thead>";
+		table+= "<tr>";
+		table+= "<th style='" + styleTd + "' class='d-inline-block'></th>";
+	for (i = 0; i < tamanhoMapa; i++) {
+		table+= "<th style='" + styleTd + "' class='d-inline-block'>" + i + "</th>";
+	}
+		table+= "</tr>";
+		table+= "</thead>";
 		table+= "<tbody>";
 	for (i = 0; i < tamanhoMapa; i++) {
 		table += "<tr>";
+		table += "<th scope='row' style='" + styleTd + "' class='d-inline-block'>" + i + "</th>";
 		for (j = 0; j < tamanhoMapa; j++) {
 			var imgName = "";
 			var marca = "";
@@ -122,7 +134,7 @@ function setAmbiente(ambiente) {
 					break;
 			}
 
-			var style = "height: 25px; width: 25px; padding: 0px;";
+			var style = styleTd;
 			var img = imgName != "" ? "<img src=\"../images/" + imgName + "\">" : "";
 			style += marca != "" ? "background-color:" + marca : "";
 			table += "<td style='" + style + "' class='d-inline-block'>" + img + "</td>";

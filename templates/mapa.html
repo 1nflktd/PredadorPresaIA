@@ -12,23 +12,26 @@
 	</script>
 </head>
 <body>
-	<div class="container">
-		<p>Iteração atual: <span id="iteracao-atual"></span></p>
-		<div id="log-predadores"></div>
-		<div id="log-presas"></div>
-		<div id="log-presas-mortas"></div>
-	</div>
-	<div class="container">
-		<div id="servidor-morto" class="alert alert-danger msgs" role="alert" style="display: none;">
-			O servidor morreu!
+	<div class="container" style="padding: 0; margin: 0;">
+		<div class="row">
+			<div class="col-sm">
+				<div id="log-predadores"></div>
+				<div id="log-presas"></div>
+				<div id="log-presas-mortas"></div>
+			</div>
+			<div class="">
+				<div id="servidor-morto" class="alert alert-danger msgs" role="alert" style="display: none;">
+					O servidor morreu!
+				</div>
+				<div id="limite-iteracoes" class="alert alert-warning msgs" role="alert" style="display: none;">
+					Limite de 5000 iterações atingido!
+				</div>
+				<div id="presas-capturadas" class="alert alert-info msgs" role="alert" style="display: none;">
+					Todas presas foram capturadas
+				</div>
+				<div id="mapa"></div>
+			</div>
 		</div>
-		<div id="limite-iteracoes" class="alert alert-warning msgs" role="alert" style="display: none;">
-			Limite de 5000 iterações atingido!
-		</div>
-		<div id="presas-capturadas" class="alert alert-info msgs" role="alert" style="display: none;">
-			Todas presas foram capturadas
-		</div>
-		<div id="mapa"></div>
 	</div>
 </body>
 </html>

@@ -50,6 +50,10 @@ func (p *Predador) mover(campoVisao CampoVisao) (Posicao, PosMovimento) {
 		}
 	}
 
+	if !p.cacando {
+		p.iteracaoCacando = 0
+	}
+
 	// diminuir intensidade das marcas atuais
 	marcas := []Marca{}
 	for _, marca := range p.marcas {
