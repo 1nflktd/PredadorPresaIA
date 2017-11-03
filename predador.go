@@ -4,7 +4,7 @@ import (
 //	"log"
 )
 
-const VelocidadeMaximaPredador = 3
+const VelocidadeMaximaPredador = 4
 
 type Predador struct {
 	AgenteImpl

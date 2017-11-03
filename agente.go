@@ -66,24 +66,27 @@ func (a *AgenteImpl) viver() (Posicao, PosMovimento) {
 func (a *AgenteImpl) moveAgente(direcao Direcao, velocidade int) (Posicao, PosMovimento) {
 	pos := a.posicao
 
-	var x_y, pos_neg_para int
-
 	a.mutexRandPos.Lock()
 
 	// verifica se move x ou y
-	x_y = a.randPos.Intn(1000) % 2
+	x_y := a.randPos.Intn(1000) % 2
 
 	// verifica se positivo ou negativo
-	pos_neg_para = (a.randPos.Intn(1002) % 3) - 1
+	pos_neg_para := (a.randPos.Intn(1002) % 3) - 1
+
+	// chance de sul, norte, leste, oeste variarem (nao ficarem indo pra frente e pra tras)
+	var_xy := a.randPos.Float64() < 0.1
 
 	a.mutexRandPos.Unlock()
 
 	if direcao != P_Aleatoria {
 		switch (direcao) {
 		case P_Norte:
-			if x_y == 0 {
+			if var_xy {
+				x_y = 0
 				pos_neg_para *= velocidade
 			} else {
+				x_y = 1 // muda y sempre
 				pos_neg_para = velocidade
 			}
 		case P_Noroeste:
@@ -95,23 +98,29 @@ func (a *AgenteImpl) moveAgente(direcao Direcao, velocidade int) (Posicao, PosMo
 		case P_Nordeste:
 			pos_neg_para = velocidade
 		case P_Leste:
-			if x_y == 0 {
-				pos_neg_para = velocidade
-			} else {
+			if var_xy {
+				x_y = 1
 				pos_neg_para *= velocidade
+			} else {
+				x_y = 0 // sempre muda x
+				pos_neg_para = velocidade
 			}
 		case P_Oeste:
-			if x_y == 0 {
-				pos_neg_para = -velocidade
-			} else {
+			if var_xy {
+				x_y = 1
 				pos_neg_para *= velocidade
+			} else {
+				x_y = 0 // sempre muda x
+				pos_neg_para = -velocidade
 			}
 		case P_Sudoeste:
 			pos_neg_para = -velocidade
 		case P_Sul:
-			if x_y == 0 {
+			if var_xy {
+				x_y = 0
 				pos_neg_para *= velocidade
 			} else {
+				x_y = 1 // sempre muda y
 				pos_neg_para = -velocidade
 			}
 		}
