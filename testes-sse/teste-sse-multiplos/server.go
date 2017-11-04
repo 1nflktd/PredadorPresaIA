@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"time"
-	"sync"
 )
 
 type Client struct {
@@ -14,14 +13,11 @@ type Client struct {
 }
 
 type Broker struct {
-	clients map[Client]bool
 	newClients chan Client
 	defunctClients chan Client
-	messages chan Client
 }
 
 var b *Broker
-var mutexClients *sync.Mutex
 var novosClients chan Client
 
 var tmplEventos *template.Template
@@ -30,25 +26,12 @@ func (b *Broker) listen() {
 	for {
 		select {
 		case s := <-b.newClients:
-			mutexClients.Lock()
-			b.clients[s] = false
-			mutexClients.Unlock()
 			log.Println("Added new client")
 
 			novosClients <- s
 
-		case s := <-b.defunctClients:
-			mutexClients.Lock()
-			delete(b.clients, s)
-			mutexClients.Unlock()
-
+		case <-b.defunctClients:
 			log.Println("Removed client")
-		/*
-		case client := <-b.messages:
-			mutexClients.Lock()
-			client.client <- client.messages
-			mutexClients.Unlock()
-		*/
 		}
 	}
 }
@@ -66,7 +49,6 @@ func (b *Broker) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	client := Client{}
-	//client.messages = make(chan string)
 	client.client = make(chan string)
 
 	b.newClients <- client
@@ -149,8 +131,6 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	b = &Broker{
-		make(map[Client]bool),
-		make(chan Client),
 		make(chan Client),
 		make(chan Client),
 	}
@@ -163,8 +143,6 @@ func main() {
 	}
 
 	novosClients = make(chan Client)
-
-	mutexClients = &sync.Mutex{}
 
 	go b.listen()
 
