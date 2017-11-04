@@ -2,64 +2,28 @@ package main
 
 import (
 	"fmt"
-	"html/template"
 	"log"
 	"net/http"
 	"strconv"
 	"errors"
-	"sync"
 
 	"time"
 	"encoding/json"
 )
 
+type Client struct {
+	dados chan []byte
+}
+
 type Broker struct {
-	clients map[chan []byte]bool
-	newClients chan chan []byte
-	defunctClients chan chan []byte
-	messages chan []byte
-	mutexClients *sync.Mutex
+	newClients chan Client
 }
 
 func NewBroker() (b *Broker) {
 	b = &Broker{
-		clients: make(map[chan []byte]bool),
-		newClients: make(chan (chan []byte)),
-		defunctClients: make(chan (chan []byte)),
-		messages: make(chan []byte, 1), // VERIFICAR ESSE BUFFER
-		mutexClients: &sync.Mutex{},
+		newClients: make(chan Client),
 	}
-
-	go b.listen()
-
 	return
-}
-
-func (b *Broker) listen() {
-	for {
-		select {
-
-		case s := <-b.newClients:
-			b.mutexClients.Lock()
-			b.clients[s] = true
-			b.mutexClients.Unlock()
-
-			log.Println("Adicionou um client")
-		case s := <-b.defunctClients:
-			b.mutexClients.Lock()
-			delete(b.clients, s)
-			b.mutexClients.Unlock()
-
-			log.Println("Removeu um client")
-		case msg := <-b.messages:
-			b.mutexClients.Lock()
-			for s, _ := range b.clients {
-				s <- msg
-			}
-			//log.Printf("Mandando msg para %d clients", len(b.clients))
-			b.mutexClients.Unlock()
-		}
-	}
 }
 
 func (b *Broker) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -74,12 +38,12 @@ func (b *Broker) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Connection", "keep-alive")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	messageChan := make(chan []byte)
+	client := Client{}
+	client.dados = make(chan []byte)
 
-	b.newClients <- messageChan
+	b.newClients <- client
 
 	defer func() {
-		b.defunctClients <- messageChan
 		log.Println("HTTP conexao fechada.")
 	}()
 
@@ -90,7 +54,7 @@ func (b *Broker) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		case <-notify:
 			return
 		default:
-			msg, open := <-messageChan
+			msg, open := <-client.dados
 
 			if !open {
 				break
@@ -138,36 +102,40 @@ func (b *Broker) AmbienteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if tmpl, err := template.New("ambiente.html").ParseFiles("templates/ambiente.html"); err != nil {
-		log.Fatal("Erro ao parsear template.", err)
-	} else {
-		if err = tmpl.Execute(w, nil); err != nil {
-			log.Fatal("Nao foi possivel executar template.", err)
-		}
+	if err := tmplAmbiente.Execute(w, nil); err != nil {
+		log.Fatal("Nao foi possivel executar template.", err)
 	}
 
 	log.Println("Terminou HTTP request 2 em ", r.URL.Path)
 
-	app := &App{}
-	app.Init(nPresas, nPredadores)
-
 	go func() {
-		app.Run()
-	}()
+		log.Println("Esperando client..")
 
-	go func() {
-		for {
-			ambienteTela := app.ambiente.GetAmbienteTela()
-			jsonAmbiente, err := json.Marshal(ambienteTela)
-			if err == nil {
-				b.messages <- jsonAmbiente
+		client := <-b.newClients
+
+		log.Println("Iniciou client..")
+
+		app := &App{}
+		app.Init(nPresas, nPredadores)
+
+		go func() {
+			app.Run()
+		}()
+
+		go func() {
+			for {
+				ambienteTela := app.ambiente.GetAmbienteTela()
+				jsonAmbiente, err := json.Marshal(ambienteTela)
+				if err == nil {
+					client.dados <- jsonAmbiente
+				}
+
+				if ambienteTela.LimiteIteracoes == true || ambienteTela.PresasTotais == 0  {
+					break
+				}
+
+				time.Sleep(100 * time.Millisecond)
 			}
-
-			if ambienteTela.LimiteIteracoes == true || ambienteTela.PresasTotais == 0  {
-				break
-			}
-
-			time.Sleep(100 * time.Millisecond)
-		}
+		}()
 	}()
 }

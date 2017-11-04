@@ -95,8 +95,8 @@ function getTableLogPresasMortas(logPresasMortas) {
     	return "";
     }
 
-	var table = "<p>Presas mortas</p>" +
-				"<table class=\"table table-bordered table-responsive table-sm\">" +
+	var table = "<table class=\"table table-bordered table-responsive table-sm\">" +
+				"<caption>Presas mortas</caption>" +
 				"<thead>" +
 					"<th>Id</th>" +
 					"<th>Posição</th>" +
