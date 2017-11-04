@@ -14,27 +14,11 @@ type Client struct {
 
 type Broker struct {
 	newClients chan Client
-	defunctClients chan Client
 }
 
 var b *Broker
-var novosClients chan Client
 
 var tmplEventos *template.Template
-
-func (b *Broker) listen() {
-	for {
-		select {
-		case s := <-b.newClients:
-			log.Println("Added new client")
-
-			novosClients <- s
-
-		case <-b.defunctClients:
-			log.Println("Removed client")
-		}
-	}
-}
 
 func (b *Broker) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	f, ok := w.(http.Flusher)
@@ -54,7 +38,6 @@ func (b *Broker) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	b.newClients <- client
 
 	defer func() {
-		b.defunctClients <- client
 		log.Println("HTTP conexao fechada.")
 	}()
 
@@ -101,7 +84,7 @@ func MainPageHandler(w http.ResponseWriter, r *http.Request) {
 
 	go func() {
 		log.Println("Esperando client..")
-		client := <-novosClients
+		client := <-b.newClients
 		log.Println("Iniciou client..")
 		log.Printf("%+v\n", client)
 		for i := 0; ; i++ {
@@ -132,7 +115,6 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	b = &Broker{
 		make(chan Client),
-		make(chan Client),
 	}
 
 	var errTmp error
@@ -141,10 +123,6 @@ func main() {
 		log.Fatal("WTF dude, error parsing your template.")
 
 	}
-
-	novosClients = make(chan Client)
-
-	go b.listen()
 
 	http.Handle("/events/", b)
 
