@@ -74,10 +74,8 @@ func MainPageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Render the template, writing to `w`.
 	tmplEventos.Execute(w, r.PostForm["nome"])
 
-	// Done.
 	log.Println("Finished HTTP request 2 at ", r.URL.Path)
 
 	log.Println("Main handler")
