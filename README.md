@@ -19,7 +19,7 @@ Valores utilizados no programa:
     - Limite de iterações: 5000
 
 
-- Windows:
+Windows:
 
 	Para rodar basta clicar no arquivo PredadorPresaIA.exe. O programa executará com a porta padrão 8000.
 
